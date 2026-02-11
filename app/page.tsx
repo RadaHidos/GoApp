@@ -12,16 +12,11 @@ export default function SplashPage() {
   return (
     <main className="min-h-screen w-full bg-[#F6F3EF]">
       <div className="mx-auto min-h-screen w-full max-w-[430px] ">
-        <motion.section
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, ease: easeOut }}
-          className="relative flex min-h-[calc(100dvh)] flex-col overflow-hidden"
-        >
+        <motion.section className="relative flex min-h-[calc(100dvh)] flex-col overflow-hidden">
           {/* Background Layer */}
           <div className="absolute inset-0 z-0">
             <motion.img
-              initial={{ scale: 1.1 }}
+              initial={{ scale: 1.5 }}
               animate={{ scale: 1 }}
               transition={{ duration: 1.4, ease: easeOut }}
               src="/images/travel-hero.jpg"
@@ -80,7 +75,7 @@ export default function SplashPage() {
 
               <motion.button
                 type="button"
-                onClick={goToAuth}
+                onClick={() => router.push("/auth/login")}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.6, delay: 0.7 }}
@@ -93,9 +88,22 @@ export default function SplashPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.6, delay: 0.9 }}
-                className="mt-2 text-[11px] font-medium text-white/40"
+                className="mt-2 text-center text-[13px] leading-relaxed text-white/40"
               >
-                By continuing you agree to our Terms
+                By continuing, you agree to our{" "}
+                <a
+                  href="#"
+                  className="underline decoration-white/20 underline-offset-2 hover:text-white/60"
+                >
+                  Terms
+                </a>{" "}
+                &{" "}
+                <a
+                  href="#"
+                  className="underline decoration-white/20 underline-offset-2 hover:text-white/60"
+                >
+                  Privacy Policy
+                </a>
               </motion.p>
             </div>
           </div>
