@@ -119,7 +119,7 @@ export default function AuthPage() {
             </a>
           </div>
 
-          <div className="text-[16px] font-medium text-black/60">
+          <div className="text-[16px] font-medium text-black/60 mb-2">
             Already have an account?{" "}
             <button
               onClick={() => router.push("/auth/login")}
