@@ -11,12 +11,12 @@ export default function SplashPage() {
 
   return (
     <main className="min-h-screen w-full bg-[#F6F3EF]">
-      <div className="mx-auto min-h-screen w-full max-w-[430px] px-3 py-3">
+      <div className="mx-auto min-h-screen w-full max-w-[430px] ">
         <motion.section
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, ease: easeOut }}
-          className="relative flex min-h-[calc(100dvh-24px)] flex-col overflow-hidden rounded-[32px] shadow-2xl"
+          className="relative flex min-h-[calc(100dvh)] flex-col overflow-hidden"
         >
           {/* Background Layer */}
           <div className="absolute inset-0 z-0">
@@ -36,7 +36,7 @@ export default function SplashPage() {
           {/* Content Layer */}
           <div className="relative z-10 flex flex-1 flex-col justify-between px-8 pb-12 pt-20">
             {/* Header Section */}
-            <div className="flex flex-col items-center pt-24">
+            <div className="flex flex-col items-center pt-48">
               <motion.h1
                 initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
                 animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
