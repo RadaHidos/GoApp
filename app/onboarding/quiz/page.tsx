@@ -28,9 +28,8 @@ export default function OnboardingQuizPage() {
           >
             <ArrowLeftIcon />
           </button>
-
-          {/* Progress Bar */}
-          <div className="flex h-1.5 w-24 overflow-hidden rounded-full bg-gray-200">
+          {/* Progress Bar - Visibility of System Status */}
+          <div className="flex-1 mx-6 flex h-1.5 overflow-hidden rounded-full bg-gray-200">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: "33%" }}
@@ -38,96 +37,75 @@ export default function OnboardingQuizPage() {
               className="h-full bg-[#8E7AF6]"
             />
           </div>
-
-          <button
-            onClick={() => router.push("/onboarding/quiz/2")}
-            className="text-[15px] font-medium text-black/40 transition-colors hover:text-black"
-          >
-            Skip
-          </button>
+          <div className="w-10" /> {/* Spacer for balance */}
         </header>
 
-        {/* Title Section */}
+        {/* Title Section - Hierarchy */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1, ease: easeOut }}
           className="mb-8 px-1"
         >
-          <h1 className="mb-2 text-[32px] font-bold leading-[1.1] tracking-tight text-black">
-            What’s your{" "}
-            <span className="bg-gradient-to-r from-[#8E7AF6] to-[#A78BFA] bg-clip-text text-transparent">
-              money
-            </span>{" "}
-            travel vibe?
+          <h1 className="mb-3 text-[32px] font-bold leading-[1.1] tracking-tight text-black">
+            What’s your <span className="text-[#8E7AF6]">money vibe</span>?
           </h1>
-          <p className="text-[17px] leading-relaxed text-black/60">
-            Be honest. We won’t tell your mom.
+          <p className="text-[17px] leading-relaxed text-black/50">
+            We'll suggest trips that fit your budget.
           </p>
         </motion.div>
 
-        {/* Options Grid */}
+        {/* Options - Affordance & Feedback */}
         <div className="flex flex-col gap-4">
           <QuizOptionCard
             id="student-loan"
             title="Student Loan Traveler"
-            description="I’m here for a good time, not a long time. My back might hurt, but my wallet won’t."
-            tags={["Hostels", "Cheap Eats"]}
+            description="I’m here for a good time, not a long time. Hostels and street food are my best friends."
+            tags={["Budget", "Hostels"]}
             selected={selectedOption === "student-loan"}
             onSelect={() => setSelectedOption("student-loan")}
             delay={0.2}
             icon={<BackpackIcon />}
-            iconBg="bg-orange-100 text-orange-600"
+            iconBg="bg-orange-50 text-orange-600"
           />
 
           <QuizOptionCard
             id="part-time-hustler"
-            title="Part-time Hustler"
-            description="I’ve got some savings and I’m not afraid to use them. No 12-hour layovers, please."
-            tags={["Private Rooms", "Direct Flights"]}
+            title="Comfort Hunter"
+            description="I want a nice bed and a direct flight. I've saved up and I'm ready to spend it."
+            tags={["Mid-range", "Hotels"]}
             selected={selectedOption === "part-time-hustler"}
             onSelect={() => setSelectedOption("part-time-hustler")}
             delay={0.3}
             icon={<BriefcaseIcon />}
-            iconBg="bg-purple-100 text-[#8E7AF6]"
+            iconBg="bg-purple-50 text-[#8E7AF6]"
           />
         </div>
 
-        {/* Info Box */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.45 }}
-          className="mt-6 flex gap-3 rounded-[20px] bg-[#F5F3FF] p-4 text-[#6D28D9]"
-        >
-          <InfoIcon className="shrink-0 mt-0.5" />
-          <p className="text-[13px] font-medium leading-relaxed">
-            Don’t worry, you can always adjust your preferences later. This just
-            sets the vibe.
-          </p>
-        </motion.div>
-
         <div className="flex-1" />
 
-        {/* Bottom CTA */}
+        {/* Bottom CTA - Hierarchy & Constraints */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.5 }}
-          className="mt-8"
+          className="mt-8 flex flex-col items-center gap-4"
         >
           <button
             onClick={handleNext}
             disabled={!selectedOption}
-            className={`w-full rounded-full py-[18px] text-[17px] font-semibold text-white shadow-lg transition-all duration-300
-              ${
-                selectedOption
-                  ? "bg-[#0B0C0F] shadow-black/10 hover:scale-[1.02] hover:bg-black"
-                  : "cursor-not-allowed bg-gray-300 opacity-50"
-              }
+            className={`w-full rounded-full py-[20px] text-[17px] font-bold text-white shadow-lg transition-all duration-300
+              ${selectedOption ? "bg-[#0B0C0F] shadow-black/10 scale-[1.02]" : "bg-gray-200 text-gray-400 cursor-not-allowed"}
             `}
           >
             Continue
+          </button>
+
+          <button
+            onClick={() => router.push("/onboarding/quiz/2")}
+            className="text-[14px] font-bold text-black/30 hover:text-black/60 transition-colors uppercase tracking-widest"
+          >
+            Skip for now
           </button>
         </motion.div>
       </div>
@@ -136,7 +114,6 @@ export default function OnboardingQuizPage() {
 }
 
 // --- Components ---
-
 interface QuizOptionCardProps {
   id: string;
   title: string;
@@ -165,50 +142,45 @@ function QuizOptionCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay, ease: easeOut }}
       onClick={onSelect}
-      className={`group relative cursor-pointer overflow-hidden rounded-[24px] border p-5 transition-all duration-300
-        ${
-          selected
-            ? "border-[#8E7AF6] bg-white ring-4 ring-[#8E7AF6]/10 shadow-lg"
-            : "border-transparent bg-white shadow-sm ring-1 ring-black/5 hover:scale-[1.01] hover:shadow-md"
-        }
+      className={`relative cursor-pointer rounded-[28px] border-2 p-6 transition-all duration-300
+        ${selected ? "border-[#8E7AF6] bg-white shadow-xl shadow-[#8E7AF6]/10 translate-y-[-2px]" : "border-transparent bg-white shadow-sm hover:shadow-md"}
       `}
     >
-      <div className="mb-4 flex items-start justify-between">
+      <div className="mb-5 flex items-center justify-between">
         <div
-          className={`flex h-12 w-12 items-center justify-center rounded-full ${iconBg}`}
+          className={`flex h-12 w-12 items-center justify-center rounded-2xl ${iconBg}`}
         >
           {icon}
         </div>
-
-        {selected && (
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="flex h-6 w-6 items-center justify-center rounded-full bg-[#8E7AF6] text-white"
-          >
-            <CheckIcon className="h-3.5 w-3.5" />
-          </motion.div>
-        )}
+        <div
+          className={`h-6 w-6 rounded-full border-2 transition-all flex items-center justify-center
+          ${selected ? "bg-[#8E7AF6] border-[#8E7AF6]" : "border-black/5"}
+        `}
+        >
+          {selected && <CheckIcon />}
+        </div>
       </div>
 
-      <h3 className="mb-2 text-[18px] font-bold text-black">{title}</h3>
-      <div className="mb-3 flex flex-wrap gap-2">
+      <h3 className="mb-2 text-[19px] font-bold text-black">{title}</h3>
+      <p className="mb-4 text-[14px] leading-relaxed text-black/50">
+        {description}
+      </p>
+
+      <div className="flex flex-wrap gap-2">
         {tags.map((tag) => (
           <span
             key={tag}
-            className="rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-semibold text-gray-600 uppercase tracking-wide"
+            className="rounded-lg bg-gray-50 px-3 py-1 text-[11px] font-bold text-black/40 uppercase tracking-wider"
           >
             {tag}
           </span>
         ))}
       </div>
-      <p className="text-[14px] leading-relaxed text-black/60">{description}</p>
     </motion.div>
   );
 }
 
 // --- Icons ---
-
 function ArrowLeftIcon() {
   return (
     <svg
@@ -262,38 +234,19 @@ function BriefcaseIcon() {
   );
 }
 
-function InfoIcon({ className }: { className?: string }) {
+function CheckIcon() {
   return (
     <svg
-      className={className}
-      width="16"
-      height="16"
+      width="12"
+      height="12"
       viewBox="0 0 24 24"
       fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="12" r="10" />
-      <path d="M12 16v-4" />
-      <path d="M12 8h.01" />
-    </svg>
-  );
-}
-
-function CheckIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
+      stroke="white"
       strokeWidth="4"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M20 6L9 17l-5-5" />
+      <polyline points="20 6 9 17 4 12" />
     </svg>
   );
 }
