@@ -35,48 +35,37 @@ export default function OnboardingSuccessPage() {
             className="absolute h-44 w-44 rounded-full bg-[#8E7AF6]/18 blur-3xl"
           />
 
-          {/* Floating gradient badge */}
+          {/* Big Floating Logo */}
           <motion.div
-            initial={{ scale: 0.9, rotate: -6, opacity: 0 }}
-            animate={{ scale: 1, rotate: 0, opacity: 1 }}
+            initial={{ scale: 0.6, opacity: 0, rotate: -6 }}
+            animate={{ scale: 1, opacity: 1, rotate: 0, y: [0, -12, 0] }}
             transition={{
-              type: "spring",
-              stiffness: 220,
-              damping: 18,
-              delay: 0.22,
-            }}
-            className="relative flex h-28 w-28 items-center justify-center rounded-[28px]
-                       bg-gradient-to-br from-[#9B8CFF] to-[#7C6DF6]
-                       shadow-[0_18px_44px_rgba(142,122,246,0.38)]"
-          >
-            {/* subtle highlight */}
-            <div className="pointer-events-none absolute inset-0 rounded-[28px] bg-gradient-to-b from-white/18 to-transparent" />
-
-            {/* Icon */}
-            <motion.div
-              initial={{ scale: 0.6, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{
+              scale: {
                 type: "spring",
-                stiffness: 320,
-                damping: 18,
-                delay: 0.35,
-              }}
-              className="text-white"
-            >
-              <SparkleIcon className="h-18 w-18" />
-            </motion.div>
-
-            {/* Floating motion */}
-            <motion.div
-              aria-hidden
-              className="absolute inset-0 rounded-[28px]"
-              animate={{ y: [0, -5, 0] }}
-              transition={{
-                duration: 3.2,
+                stiffness: 200,
+                damping: 20,
+                delay: 0.22,
+              },
+              opacity: { duration: 0.6, delay: 0.22 },
+              rotate: {
+                type: "spring",
+                stiffness: 200,
+                damping: 20,
+                delay: 0.22,
+              },
+              y: {
+                duration: 3.5,
                 repeat: Infinity,
                 ease: "easeInOut",
-              }}
+                delay: 0.8,
+              },
+            }}
+            className="relative h-44 w-44 drop-shadow-2xl"
+          >
+            <img
+              src="/images/logo-go.png"
+              alt="Go App Logo"
+              className="h-full w-full object-contain"
             />
           </motion.div>
         </motion.div>
