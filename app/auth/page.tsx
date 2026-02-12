@@ -9,85 +9,55 @@ const easeOut = [0.22, 1, 0.36, 1] as const;
 export default function AuthPage() {
   const router = useRouter();
 
-  const handleBack = () => {
-    // Back is nicer, but if there is no history it can feel broken.
-    // Fallback to "/" in case back doesn't change route.
-    try {
-      router.back();
-      setTimeout(() => {
-        // If still on /auth after a beat, go home
-        if (window.location.pathname === "/auth") router.push("/");
-      }, 120);
-    } catch {
-      router.push("/");
-    }
-  };
-
   return (
     <main className="min-h-screen w-full bg-[#FAFAFA] text-[#1D1D1F]">
       <div className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 py-6 font-sans">
-        {/* Back Button */}
-        <motion.button
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4, ease: easeOut }}
-          onClick={handleBack}
-          className="group mb-8 flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] ring-1 ring-black/5 transition-all active:scale-95"
-          aria-label="Go back"
-        >
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="text-black/70 transition-colors group-hover:text-black"
+        {/* Unified Navigation Header */}
+        <header className="mb-8">
+          <button
+            onClick={() => router.push("/")}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-black shadow-sm ring-1 ring-black/5 transition-transform active:scale-95"
+            aria-label="Go back"
           >
-            <path d="M15 18L9 12L15 6" />
-          </svg>
-        </motion.button>
+            <ArrowLeftIcon />
+          </button>
+        </header>
 
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1, ease: easeOut }}
-          className="mb-10 px-1"
+          className="mb-12 px-1"
         >
           <h1 className="mb-3 text-[34px] font-bold leading-[1.1] tracking-tight text-black">
-            Unlock your
-            <br />
-            next adventure.
+            Your next journey <br /> starts here.
           </h1>
-          <p className="text-[17px] leading-relaxed text-black/60">
-            Log in or sign up to personalize your journey, track your progress,
-            and get tailored recommendations.
+          <p className="text-[17px] leading-relaxed text-black/50">
+            Sign up to personalize your trips and access campus hidden gems.
           </p>
         </motion.div>
 
-        {/* Buttons */}
+        {/* Action List - High Recognition Over Recall */}
         <div className="flex w-full flex-col gap-4">
-          <AuthButton
+          <SocialButton
             onClick={() => router.push("/onboarding/study")}
-            icon={<AppleIcon className="h-[18px] w-[18px]" />}
+            icon={<AppleIcon />}
             label="Continue with Apple"
             variant="dark"
             delay={0.2}
           />
-          <AuthButton
+          <SocialButton
             onClick={() => router.push("/onboarding/study")}
-            icon={<GoogleIcon className="h-[20px] w-[20px]" />}
+            icon={<GoogleIcon />}
             label="Continue with Google"
             variant="light"
             delay={0.3}
           />
-          <AuthButton
+
+          <SocialButton
             onClick={() => router.push("/auth/email")}
-            icon={<MailIcon className="h-[20px] w-[20px]" />}
-            label="Sign up with Email"
+            icon={<EmailIcon />}
+            label="Sign Up with Email"
             variant="light"
             delay={0.4}
           />
@@ -95,38 +65,25 @@ export default function AuthPage() {
 
         <div className="flex-1" />
 
-        {/* Bottom */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.6 }}
-          className="mt-8 flex flex-col items-center gap-8 pb-4"
+          className="mt-8 flex flex-col items-center gap-6 pb-4"
         >
-          <div className="text-center text-[13px] leading-relaxed text-black/40">
-            By continuing, you agree to our{" "}
-            <a
-              href="#"
-              className="underline decoration-black/10 underline-offset-2 hover:text-black/60"
-            >
-              Terms
-            </a>{" "}
-            &{" "}
-            <a
-              href="#"
-              className="underline decoration-black/10 underline-offset-2 hover:text-black/60"
-            >
-              Privacy Policy
-            </a>
-          </div>
-
-          <div className="text-[16px] font-medium text-black/60 mb-2">
+          <p className="text-[16px] font-medium text-black/60">
             Already have an account?{" "}
             <button
               onClick={() => router.push("/auth/login")}
-              className="font-semibold text-[#8E7AF6] transition-opacity hover:opacity-80"
+              className="font-bold text-[#8E7AF6] hover:underline underline-offset-4"
             >
               Log in
             </button>
+          </p>
+          <div className="text-center text-[12px] leading-relaxed text-black/30 px-6">
+            By continuing, you agree to our{" "}
+            <span className="underline">Terms</span> &{" "}
+            <span className="underline">Privacy Policy</span>.
           </div>
         </motion.div>
       </div>
@@ -135,68 +92,64 @@ export default function AuthPage() {
 }
 
 // --- Components ---
-
-interface AuthButtonProps {
+function SocialButton({
+  label,
+  icon,
+  onClick,
+  variant,
+  delay,
+}: {
   label: string;
   icon: ReactNode;
   onClick: () => void;
   variant: "dark" | "light";
   delay: number;
-}
-
-function AuthButton({ label, icon, onClick, variant, delay }: AuthButtonProps) {
+}) {
   const isDark = variant === "dark";
-
   return (
     <motion.button
-      type="button"
       onClick={onClick}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.42, delay, ease: easeOut }}
-      whileHover={{ scale: 1.01 }}
-      whileTap={{ scale: 0.98 }}
-      className={[
-        "relative flex h-[58px] w-full items-center justify-center rounded-full",
-        "px-6",
-        "transition-colors duration-200",
-        "will-change-transform transform-gpu",
+      transition={{ duration: 0.5, delay, ease: easeOut }}
+      className={`relative flex w-full items-center justify-center rounded-full py-[18px] text-[17px] font-bold transition-all active:scale-[0.98] ${
         isDark
-          ? "bg-[#0B0C0F] text-white shadow-[0_10px_26px_rgba(0,0,0,0.18)] ring-1 ring-inset ring-white/10"
-          : "bg-white text-[#1D1D1F] shadow-[0_6px_18px_rgba(0,0,0,0.06)] ring-1 ring-inset ring-[#E6E7EE] hover:ring-[#D1D1D6]",
-      ].join(" ")}
+          ? "bg-[#0B0C0F] text-white shadow-xl"
+          : "bg-white text-black shadow-sm ring-1 ring-black/5"
+      }`}
     >
-      {/* Icon slot (does not affect centering of label) */}
-      <span
-        className={[
-          "absolute left-6 flex items-center justify-center",
-          // ensures icons inherit correct color in dark button
-          isDark ? "text-white" : "text-[#1D1D1F]",
-        ].join(" ")}
-      >
-        {icon}
-      </span>
-
-      {/* Centered label */}
-      <span className="text-[16px] font-semibold tracking-wide">{label}</span>
+      <span className="absolute left-6">{icon}</span>
+      {label}
     </motion.button>
   );
 }
 
-// --- Icons ---
-
-function AppleIcon({ className = "h-5 w-5" }: { className?: string }) {
-  // Clean Apple mark SVG, consistent across browsers
+function ArrowLeftIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
-      <path d="M16.365 1.43c0 1.14-.455 2.19-1.227 2.98-.833.86-2.17 1.52-3.34 1.43-.15-1.11.39-2.24 1.15-3.04.84-.9 2.3-1.55 3.42-1.37zm3.76 16.75c-.53 1.23-.78 1.78-1.47 2.86-.96 1.48-2.31 3.33-3.99 3.35-1.49.02-1.88-.98-3.9-.97-2.02.01-2.46.99-3.95.95-1.68-.03-2.96-1.69-3.92-3.17-2.68-4.12-2.96-8.96-1.31-11.49 1.17-1.8 3.02-2.86 4.75-2.86 1.76 0 2.87 1 3.89 1 1 0 1.63-1 3.87-1 1.55 0 3.2.85 4.36 2.32-3.84 2.12-3.22 7.63 1.67 9.06z" />
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M15 18L9 12L15 6" />
     </svg>
   );
 }
-
-function GoogleIcon({ className = "h-5 w-5" }: { className?: string }) {
+function AppleIcon() {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M17.05 20.28c-.96.95-2.06 1.72-3.1 1.72-1.2 0-1.6-.74-3.1-.74s-1.9.74-3.1.74c-1.1 0-2.3-.9-3.3-2.1-2-2.5-3.1-6.1-3.1-9.3 0-5.1 3.2-7.8 6.1-7.8 1.5 0 2.8.9 3.7.9.9 0 2.4-.9 4-.9 1.4 0 4.6.4 6.2 4.1-3 .4-3.6 5.1-.1 6.6-1 2.3-2.3 4.8-3.3 5.9zM12 2c0-1.1.9-2 2-2 1.1 0 2 .9 2 2 0 1.1-.9 2-2 2-1.1 0-2-.9-2-2z" />
+    </svg>
+  );
+}
+function GoogleIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
       <path
         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
         fill="#4285F4"
@@ -206,21 +159,22 @@ function GoogleIcon({ className = "h-5 w-5" }: { className?: string }) {
         fill="#34A853"
       />
       <path
-        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
         fill="#FBBC05"
       />
       <path
-        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+        d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
         fill="#EA4335"
       />
     </svg>
   );
 }
 
-function MailIcon({ className = "h-5 w-5" }: { className?: string }) {
+function EmailIcon() {
   return (
     <svg
-      className={className}
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -228,7 +182,7 @@ function MailIcon({ className = "h-5 w-5" }: { className?: string }) {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <rect x="2" y="4" width="20" height="16" rx="2" />
+      <rect width="20" height="16" x="2" y="4" rx="2" />
       <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
     </svg>
   );
