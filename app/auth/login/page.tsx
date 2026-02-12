@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 const easeOut = [0.22, 1, 0.36, 1] as const;
 
@@ -13,6 +13,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleBack = () => {
     router.back();
@@ -29,41 +30,38 @@ export default function LoginPage() {
 
     setIsLoading(true);
 
-    // Mock network delay (optional, feels more real)
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    // Mock network delay
+    await new Promise((resolve) => setTimeout(resolve, 1200));
 
     setIsLoading(false);
-    router.push("/home"); // Mock success route
+    setIsSuccess(true);
+    
+    // Feedback: Let user see success before redirecting
+    setTimeout(() => {
+      router.push("/home");
+    }, 800);
   };
 
   return (
     <main className="min-h-screen w-full bg-[#FAFAFA] text-[#1D1D1F]">
       <div className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 py-6 font-sans">
-        {/* Back Button */}
-        <motion.button
+        {/* Navigation - Consistency with Quiz pages */}
+        <motion.div
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4, ease: easeOut }}
-          onClick={handleBack}
-          className="group mb-8 flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] ring-1 ring-black/5 transition-all active:scale-95"
-          aria-label="Go back"
+          className="mb-8"
         >
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="text-black/70 transition-colors group-hover:text-black"
+          <button
+            onClick={handleBack}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-black shadow-sm ring-1 ring-black/5 transition-transform active:scale-95"
+            aria-label="Go back"
           >
-            <path d="M15 18L9 12L15 6" />
-          </svg>
-        </motion.button>
+            <ArrowLeftIcon />
+          </button>
+        </motion.div>
 
-        {/* Header */}
+        {/* Header - Hierarchy & Visual Weight */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -74,137 +72,128 @@ export default function LoginPage() {
             Welcome back!
           </h1>
           <p className="text-[17px] text-black/60">
-            Please enter your details to sign in.
+            Sign in to continue your journey.
           </p>
         </motion.div>
 
-        {/* Form */}
+        {/* Form - Error Prevention & Recovery */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-          {/* Email Input */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2, ease: easeOut }}
             className="space-y-1"
           >
-            <label
-              htmlFor="email"
-              className="ml-1 text-[13px] font-medium text-black/60"
-            >
-              Email or Username
+            <label htmlFor="email" className="ml-1 text-[13px] font-semibold text-black/50 uppercase tracking-wider">
+              Email Address
             </label>
             <input
               id="email"
-              type="text" // 'text' allows username or email
+              type="email"
+              required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-[20px] border-0 bg-white px-5 py-4 text-[16px] text-black shadow-sm ring-1 ring-inset ring-[#E6E7EE] transition-all placeholder:text-black/30 focus:ring-2 focus:ring-[#8E7AF6] focus:outline-none"
-              placeholder="Enter your email"
+              className="w-full rounded-[20px] border-0 bg-white px-5 py-4 text-[16px] text-black shadow-sm ring-1 ring-inset ring-black/5 transition-all placeholder:text-black/20 focus:ring-2 focus:ring-[#8E7AF6] focus:outline-none"
+              placeholder="name@example.com"
             />
           </motion.div>
 
-          {/* Password Input */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3, ease: easeOut }}
             className="space-y-1"
           >
-            <label
-              htmlFor="password"
-              className="ml-1 text-[13px] font-medium text-black/60"
-            >
-              Password
-            </label>
+            <div className="flex justify-between items-center px-1">
+              <label htmlFor="password" className="text-[13px] font-semibold text-black/50 uppercase tracking-wider">
+                Password
+              </label>
+              <button
+                type="button"
+                onClick={() => router.push("/auth/forgot")}
+                className="text-[13px] font-medium text-[#8E7AF6] hover:opacity-80"
+              >
+                Forgot?
+              </button>
+            </div>
             <div className="relative">
               <input
                 id="password"
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-[20px] border-0 bg-white px-5 py-4 pr-12 text-[16px] text-black shadow-sm ring-1 ring-inset ring-[#E6E7EE] transition-all placeholder:text-black/30 focus:ring-2 focus:ring-[#8E7AF6] focus:outline-none"
-                placeholder="Enter your password"
+                className="w-full rounded-[20px] border-0 bg-white px-5 py-4 pr-12 text-[16px] text-black shadow-sm ring-1 ring-inset ring-black/5 transition-all placeholder:text-black/20 focus:ring-2 focus:ring-[#8E7AF6] focus:outline-none"
+                placeholder="Enter password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-1 text-black/40 transition-colors hover:text-black/70"
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-1 text-black/30 transition-colors hover:text-black/70"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
-                {showPassword ? (
-                  <EyeOffIcon className="h-5 w-5" />
-                ) : (
-                  <EyeIcon className="h-5 w-5" />
-                )}
+                {showPassword ? <EyeOffIcon /> : <EyeIcon />}
               </button>
             </div>
           </motion.div>
 
-          {/* Forgot Password Link */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="flex justify-end px-1"
-          >
-            <button
-              type="button"
-              onClick={() => router.push("/auth/forgot")}
-              className="text-[14px] font-medium text-[#8E7AF6] transition-opacity hover:opacity-80"
-            >
-              Forgot password?
-            </button>
-          </motion.div>
+          <AnimatePresence>
+            {error && (
+              <motion.p
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="text-center text-[14px] font-medium text-red-500 bg-red-50 py-2 rounded-lg"
+              >
+                {error}
+              </motion.p>
+            )}
+          </AnimatePresence>
 
-          {/* Error Message */}
-          {error && (
-            <motion.p
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              className="text-center text-[14px] font-medium text-red-500"
-            >
-              {error}
-            </motion.p>
-          )}
-
-          {/* Submit Button */}
+          {/* Submit - Feedback & Visibility of System Status */}
           <motion.button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || isSuccess}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.5, ease: easeOut }}
             whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.98 }}
-            className={`mt-4 w-full rounded-full bg-[#0B0C0F] py-[18px] text-[17px] font-semibold text-white shadow-lg shadow-black/5 transition-all
-              ${isLoading ? "cursor-not-allowed opacity-80" : "hover:bg-black/90"}
+            className={`mt-4 w-full rounded-full py-[18px] text-[17px] font-bold text-white shadow-lg transition-all duration-300
+              ${isSuccess ? "bg-green-500 shadow-green-200" : "bg-[#0B0C0F] shadow-black/10 hover:bg-black"}
+              ${isLoading ? "opacity-90 cursor-wait" : ""}
             `}
           >
             {isLoading ? (
               <span className="flex items-center justify-center gap-2">
                 <Spinner className="h-5 w-5 animate-spin" />
-                Logging in...
+                Signing in...
+              </span>
+            ) : isSuccess ? (
+              <span className="flex items-center justify-center gap-2">
+                <CheckIcon className="h-5 w-5" />
+                Success
               </span>
             ) : (
-              "Log in"
+              "Sign In"
             )}
           </motion.button>
         </form>
 
-        {/* Footer Link */}
+        <div className="flex-1" />
+
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.6 }}
-          className="mt-6 text-center text-[15px] font-medium text-black/60"
+          className="mt-6 text-center text-[15px] font-medium text-black/40"
         >
-          Don’t have an account?{" "}
+          New to Go?{" "}
           <button
             type="button"
             onClick={() => router.push("/auth")}
-            className="font-semibold text-[#8E7AF6] transition-opacity hover:opacity-80"
+            className="font-bold text-[#8E7AF6] hover:underline underline-offset-4"
           >
-            Sign up
+            Create account
           </button>
         </motion.div>
       </div>
@@ -213,35 +202,25 @@ export default function LoginPage() {
 }
 
 // --- Icons ---
-
-function EyeIcon({ className }: { className?: string }) {
+function ArrowLeftIcon() {
   return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-      <circle cx="12" cy="12" r="3" />
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M15 18L9 12L15 6" />
     </svg>
   );
 }
 
-function EyeOffIcon({ className }: { className?: string }) {
+function EyeIcon() {
   return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
+    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+function EyeOffIcon() {
+  return (
+    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3" />
       <line x1="1" y1="1" x2="23" y2="23" />
     </svg>
@@ -250,25 +229,17 @@ function EyeOffIcon({ className }: { className?: string }) {
 
 function Spinner({ className }: { className?: string }) {
   return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-    >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      />
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-      />
+    <svg className={className} viewBox="0 0 24 24" fill="none">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+    </svg>
+  );
+}
+
+function CheckIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="20 6 9 17 4 12" />
     </svg>
   );
 }
