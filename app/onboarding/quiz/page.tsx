@@ -33,14 +33,14 @@ export default function OnboardingQuizPage() {
           <div className="flex h-1.5 w-24 overflow-hidden rounded-full bg-gray-200">
             <motion.div
               initial={{ width: 0 }}
-              animate={{ width: "25%" }}
+              animate={{ width: "33%" }}
               transition={{ duration: 0.8, ease: easeOut }}
               className="h-full bg-[#8E7AF6]"
             />
           </div>
 
           <button
-            onClick={() => router.push("/home")}
+            onClick={() => router.push("/onboarding/quiz/2")}
             className="text-[15px] font-medium text-black/40 transition-colors hover:text-black"
           >
             Skip
