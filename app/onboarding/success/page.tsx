@@ -15,203 +15,103 @@ export default function OnboardingSuccessPage() {
 
   return (
     <main className="relative min-h-screen w-full overflow-hidden bg-[#FAFAFA] text-[#1D1D1F]">
-      {/* Confetti Layer */}
       <Confetti />
 
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-[430px] flex-col items-center justify-center px-6 py-6 font-sans">
-        {/* Fun Badge */}
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-[430px] flex-col items-center justify-center px-8 py-6 font-sans">
+        {/* The "Hero" Moment - Visual Weight */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.92 }}
+          initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.55, delay: 0.15, ease: easeOut }}
-          className="relative mb-8 flex items-center justify-center"
+          transition={{ duration: 0.6, ease: easeOut }}
+          className="relative mb-12"
         >
-          {/* Soft glow */}
+          <div className="absolute inset-0 bg-[#8E7AF6]/10 blur-[60px] rounded-full" />
           <motion.div
-            aria-hidden
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.7, delay: 0.2, ease: easeOut }}
-            className="absolute h-44 w-44 rounded-full bg-[#8E7AF6]/18 blur-3xl"
-          />
-
-          {/* Big Floating Logo */}
-          <motion.div
-            initial={{ scale: 0.6, opacity: 0, rotate: -6 }}
-            animate={{ scale: 1, opacity: 1, rotate: 0, y: [0, -12, 0] }}
-            transition={{
-              scale: {
-                type: "spring",
-                stiffness: 200,
-                damping: 20,
-                delay: 0.22,
-              },
-              opacity: { duration: 0.6, delay: 0.22 },
-              rotate: {
-                type: "spring",
-                stiffness: 200,
-                damping: 20,
-                delay: 0.22,
-              },
-              y: {
-                duration: 3.5,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 0.8,
-              },
-            }}
-            className="relative h-44 w-44 drop-shadow-2xl"
+            animate={{ y: [0, -10, 0] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            className="relative h-48 w-48"
           >
             <img
               src="/images/logo-go.png"
               alt="Go App Logo"
-              className="h-full w-full object-contain"
+              className="h-full w-full object-contain drop-shadow-2xl"
             />
           </motion.div>
         </motion.div>
 
-        {/* Content */}
-        <div className="text-center">
+        {/* Messaging - Hierarchy */}
+        <div className="text-center space-y-3">
           <motion.h1
-            initial={{ opacity: 0, y: 14, rotate: -3 }}
-            animate={{ opacity: 1, y: 0, rotate: 0 }}
-            transition={{
-              type: "spring",
-              stiffness: 220,
-              damping: 20,
-              delay: 0.28,
-            }}
-            className="mb-3 text-[36px] font-bold leading-none tracking-tight text-black"
-          >
-            You’re in The Club!
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 14 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, delay: 0.42, ease: easeOut }}
-            className="mx-auto max-w-[290px] text-[17px] font-medium leading-relaxed text-black/60"
+            transition={{ delay: 0.3 }}
+            className="text-[34px] font-bold leading-tight tracking-tight text-black"
           >
-            Now let’s tailor your experience to match your vibe.
+            You're in!
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="text-[17px] font-medium text-black/50 leading-relaxed"
+          >
+            Now, let's personalize your vibe to show you the best trips.
           </motion.p>
         </div>
 
-        {/* Action Button */}
+        {/* Action - Unified Affordance */}
         <motion.div
-          initial={{ opacity: 0, y: 22 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, delay: 0.6, ease: easeOut }}
-          className="mt-12 w-full"
+          transition={{ delay: 0.6 }}
+          className="mt-14 w-full"
         >
-          <motion.button
+          <button
             onClick={handleContinue}
-            whileHover={{ scale: 1.015 }}
-            whileTap={{ scale: 0.985 }}
-            className="w-full rounded-full bg-[#0B0C0F] py-[20px] text-[17px] font-semibold tracking-wide text-white
-                       shadow-[0_18px_32px_rgba(0,0,0,0.14)] transition-colors hover:bg-black/90
-                       will-change-transform transform-gpu"
+            className="w-full rounded-full bg-[#0B0C0F] py-[22px] text-[18px] font-bold text-white shadow-2xl shadow-black/10 transition-all hover:bg-black active:scale-[0.98]"
           >
-            Continue →
-          </motion.button>
+            Start Personalizing
+          </button>
         </motion.div>
       </div>
     </main>
   );
 }
 
-// --- Icons ---
-
-function SparkleIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-    >
-      {/* Main sparkle */}
-      <path d="M12 2l1.9 6.3L20 10l-6.1 1.7L12 18l-1.9-6.3L4 10l6.1-1.7L12 2z" />
-      {/* Small side sparkle */}
-      <path
-        d="M19.6 3.9l.7 2.2 2.2.7-2.2.7-.7 2.2-.7-2.2-2.2-.7 2.2-.7.7-2.2z"
-        opacity="0.85"
-      />
-    </svg>
-  );
-}
-
-// --- Confetti Component ---
-
-const CONFETTI_COLORS = ["#8E7AF6", "#A78BFA", "#DDD6FE", "#F3F4F6"];
-const NUM_CONFETTI = 26;
-
-type ConfettiPiece = {
-  id: number;
-  x: number; // vw
-  delay: number;
-  duration: number;
-  color: string;
-  rotation: number;
-  scale: number;
-  shape: "square" | "pill";
-};
-
+// --- Confetti (Optimized for Senior UX - subtle, not distracting) ---
 function Confetti() {
   const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const pieces: ConfettiPiece[] = useMemo(() => {
+  const pieces = useMemo(() => {
     if (!mounted) return [];
-    return Array.from({ length: NUM_CONFETTI }).map((_, i) => ({
+    return Array.from({ length: 20 }).map((_, i) => ({
       id: i,
       x: Math.random() * 100,
-      delay: Math.random() * 0.45,
-      duration: 2.2 + Math.random() * 1.6,
-      color:
-        CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
-      rotation: Math.random() * 360,
-      scale: 0.65 + Math.random() * 0.7,
-      shape: Math.random() > 0.72 ? "pill" : "square",
+      delay: Math.random() * 0.5,
+      size: 6 + Math.random() * 8,
+      color: ["#8E7AF6", "#A78BFA", "#DDD6FE"][Math.floor(Math.random() * 3)],
     }));
   }, [mounted]);
 
-  // one-shot confetti (doesn't loop)
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      {pieces.map((piece) => (
+    <div className="pointer-events-none absolute inset-0">
+      {pieces.map((p) => (
         <motion.div
-          key={piece.id}
-          initial={{
-            y: -24,
-            x: `${piece.x}vw`,
-            opacity: 0,
-            rotate: piece.rotation,
-          }}
-          animate={{
-            y: "110vh",
-            x: `${piece.x + (Math.random() - 0.5) * 8}vw`,
-            opacity: [0, 0.9, 0.9, 0],
-            rotate: piece.rotation + 260,
-          }}
+          key={p.id}
+          initial={{ y: -20, x: `${p.x}vw`, opacity: 0 }}
+          animate={{ y: "110vh", opacity: [0, 1, 1, 0] }}
           transition={{
-            duration: piece.duration,
-            delay: piece.delay,
-            ease: [0.25, 0.1, 0.25, 1],
-            times: [0, 0.12, 0.82, 1],
+            duration: 2.5 + Math.random(),
+            delay: p.delay,
+            ease: "linear",
           }}
           style={{
             position: "absolute",
-            top: 0,
-            left: 0,
-            width: piece.shape === "pill" ? "12px" : "10px",
-            height: "10px",
-            backgroundColor: piece.color,
-            borderRadius: piece.shape === "pill" ? "999px" : "3px",
-            scale: piece.scale,
-            filter: "drop-shadow(0 10px 18px rgba(0,0,0,0.06))",
+            width: p.size,
+            height: p.size,
+            backgroundColor: p.color,
+            borderRadius: "50%",
           }}
         />
       ))}
