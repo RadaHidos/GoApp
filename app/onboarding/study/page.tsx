@@ -63,7 +63,8 @@ export default function OnboardingStudyPage() {
     // Mock network request
     await new Promise((resolve) => setTimeout(resolve, 800));
     setIsLoading(false);
-    router.push("/home"); // Mock success route
+    router.push("/onboarding/success");
+    // Mock success route
   };
 
   return (
