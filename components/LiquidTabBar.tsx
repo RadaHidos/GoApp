@@ -20,16 +20,24 @@ export default function LiquidTabBar({
   onChange,
 }: LiquidTabBarProps) {
   return (
-    <div className="fixed bottom-8 left-0 right-0 z-50 flex justify-center pointer-events-none">
-      <div className="pointer-events-auto relative flex items-center justify-between gap-1 p-2 h-[68px] min-w-[320px] w-[92vw] max-w-[380px] rounded-[34px] shadow-[0_24px_48px_-12px_rgba(0,0,0,0.18)]">
-        {/* --- Glass Background Layers --- */}
+    <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
+      <div className="pointer-events-auto relative flex items-center justify-between gap-1 p-1.5 h-[56px] min-w-[280px] w-[88vw] max-w-[420px] rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.12)]">
+        {/* --- Glass Layers --- */}
 
-        {/* Blur Layer */}
-        <div className="absolute inset-0 rounded-[34px] bg-white/60 backdrop-blur-2xl border border-white/20 ring-1 ring-black/5" />
+        {/* Base Blur - Thinner & Crisper */}
+        <div className="absolute inset-0 rounded-full bg-white/40 backdrop-blur-md" />
 
-        {/* Gloss Gradient (Top Highlight) */}
-        <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/50 to-transparent opacity-80" />
-        <div className="absolute inset-0 rounded-[34px] bg-gradient-to-b from-white/40 via-white/10 to-transparent opacity-50 pointer-events-none" />
+        {/* Inner Depth / Inset Shadows (CSS trick for glass feel) */}
+        <div
+          className="absolute inset-0 rounded-full pointer-events-none border border-white/20"
+          style={{
+            boxShadow:
+              "inset 0 0.5px 0 rgba(255,255,255,0.7), inset 0 -0.5px 0 rgba(0,0,0,0.05)",
+          }}
+        />
+
+        {/* Specular Highlight (Top Shine) */}
+        <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/50 via-white/10 to-transparent opacity-60 pointer-events-none" />
 
         {/* --- Tabs --- */}
         <div className="relative z-10 flex w-full items-center justify-between px-1">
@@ -40,48 +48,50 @@ export default function LiquidTabBar({
               <button
                 key={tab.id}
                 onClick={() => onChange(tab.id)}
-                className="group relative flex flex-1 flex-col items-center justify-center gap-[3px] py-1 cursor-pointer outline-none tap-highlight-transparent"
+                className="group relative flex flex-1 items-center justify-center h-[44px] cursor-pointer outline-none tap-highlight-transparent"
                 style={{ WebkitTapHighlightColor: "transparent" }}
               >
-                {/* Active Capsule Background */}
+                {/* Active Bubble */}
                 {isActive && (
                   <motion.div
-                    layoutId="active-capsule"
-                    className="absolute inset-0 rounded-[24px] bg-white/80 shadow-[0_2px_8px_rgba(0,0,0,0.04)] ring-1 ring-black/5"
+                    layoutId="activeBubble"
+                    className="absolute inset-0 rounded-full bg-white/60 shadow-[0_4px_12px_rgba(0,0,0,0.1)] border border-white/40"
                     transition={{
                       type: "spring",
-                      stiffness: 300,
-                      damping: 30,
+                      stiffness: 380,
+                      damping: 26,
                     }}
-                  />
+                  >
+                    {/* Subtle inner highlight on the bubble too */}
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/80 to-transparent opacity-50" />
+                  </motion.div>
                 )}
 
-                {/* Icon Container */}
+                {/* Content Container (Center Icon + Label if needed) */}
                 <motion.div
-                  animate={{
-                    scale: isActive ? 1.05 : 1,
-                    y: isActive ? -1 : 0,
-                  }}
-                  whileTap={{ scale: 0.9 }}
-                  className={`relative z-10 transition-colors duration-300 ${
-                    isActive
-                      ? "text-[#8E7AF6]"
-                      : "text-[#1D1D1F]/40 group-hover:text-[#1D1D1F]/60"
-                  }`}
+                  className="relative z-10 flex flex-col items-center justify-center gap-0.5"
+                  animate={{ scale: isActive ? 1.05 : 1 }}
+                  whileTap={{ scale: 0.96 }}
                 >
-                  <div className="h-[22px] w-[22px]">{tab.icon}</div>
+                  <motion.div
+                    className={`transition-colors duration-300 ${
+                      isActive
+                        ? "text-[#8E7AF6]"
+                        : "text-[#1D1D1F]/50 group-hover:text-[#1D1D1F]/70"
+                    }`}
+                  >
+                    <div className="h-[22px] w-[22px]">{tab.icon}</div>
+                  </motion.div>
+                  <span
+                    className={`text-[10px] font-medium transition-colors duration-300 ${
+                      isActive
+                        ? "text-[#8E7AF6]"
+                        : "text-[#1D1D1F]/50 group-hover:text-[#1D1D1F]/70"
+                    }`}
+                  >
+                    {tab.label}
+                  </span>
                 </motion.div>
-
-                {/* Label */}
-                <motion.span
-                  animate={{
-                    color: isActive ? "#8E7AF6" : "rgba(29, 29, 31, 0.4)",
-                    fontWeight: isActive ? 600 : 500,
-                  }}
-                  className="relative z-10 text-[10px] tracking-wide"
-                >
-                  {tab.label}
-                </motion.span>
               </button>
             );
           })}
