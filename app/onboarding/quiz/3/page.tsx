@@ -16,7 +16,7 @@ export default function OnboardingQuizPage3() {
 
   const handleFinish = () => {
     if (selectedOption) {
-      router.push("/onboarding/success");
+      router.push("/onboarding/building");
     }
   };
 
