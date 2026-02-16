@@ -17,7 +17,7 @@ const LOADING_STEPS = [
   "Analyzing your vibe...",
   "Finding hidden gems...",
   "Tailoring your budget...",
-  "Finalizing your journey..."
+  "Finalizing your journey...",
 ];
 
 export default function BuildingProfilePage() {
@@ -38,7 +38,7 @@ export default function BuildingProfilePage() {
     // 3. Redirect to Home (Consistency with common app patterns)
     const redirectTimer = setTimeout(() => {
       router.push("/home");
-    }, 9500);
+    }, 7500);
 
     return () => {
       controls.stop();
@@ -52,9 +52,9 @@ export default function BuildingProfilePage() {
       {/* Ambient Background Glows - Visual Weight */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <motion.div
-          animate={{ 
+          animate={{
             scale: [1, 1.2, 1],
-            opacity: [0.05, 0.08, 0.05] 
+            opacity: [0.05, 0.08, 0.05],
           }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
           className="absolute -top-[10%] -left-[10%] h-[600px] w-[600px] rounded-full bg-[#8E7AF6] blur-[120px]"
@@ -81,7 +81,9 @@ function LoadingState({ countValue }: { countValue: any }) {
 
   useEffect(() => {
     const stepInterval = setInterval(() => {
-      setStepIndex((prev) => (prev < LOADING_STEPS.length - 1 ? prev + 1 : prev));
+      setStepIndex((prev) =>
+        prev < LOADING_STEPS.length - 1 ? prev + 1 : prev,
+      );
     }, 900);
     return () => clearInterval(stepInterval);
   }, []);
@@ -102,7 +104,10 @@ function LoadingState({ countValue }: { countValue: any }) {
           className="absolute inset-4 rounded-full bg-[#8E7AF6]/10 blur-xl"
         />
 
-        <svg className="h-full w-full -rotate-90 transform" viewBox="0 0 100 100">
+        <svg
+          className="h-full w-full -rotate-90 transform"
+          viewBox="0 0 100 100"
+        >
           <circle
             cx="50"
             cy="50"
@@ -127,7 +132,7 @@ function LoadingState({ countValue }: { countValue: any }) {
         </svg>
 
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <motion.span 
+          <motion.span
             animate={{ opacity: [0.4, 1, 0.4] }}
             transition={{ duration: 1.5, repeat: Infinity }}
             className="mb-1 text-[12px] font-bold uppercase tracking-[0.2em] text-[#8E7AF6]"
@@ -195,7 +200,7 @@ function SuccessState() {
           }}
           className="relative z-10 text-[#8E7AF6]"
         >
-           <SparkleIcon className="h-24 w-24 drop-shadow-lg" />
+          <SparkleIcon className="h-24 w-24 drop-shadow-lg" />
         </motion.div>
 
         {/* Dynamic Particles - Occam's Razor: Simplicity in visual delight */}
@@ -216,12 +221,13 @@ function SuccessState() {
           Your profile is <span className="text-[#8E7AF6]">ready</span>.
         </h2>
         <p className="text-[18px] font-medium text-[#1D1D1F]/50 max-w-[280px] mx-auto leading-relaxed">
-           Your personalized travel vibe is locked in. Let's find your first trip.
+          Your personalized travel vibe is locked in. Let's find your first
+          trip.
         </p>
       </motion.div>
-      
+
       {/* Bottom Signifier - Feedback */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.2, duration: 1 }}
@@ -237,7 +243,19 @@ function SuccessState() {
 
 // --- Helper Components ---
 
-function ConfettiBurst({ delay, x, y, color, size }: { delay: number; x: number; y: number; color: string; size: number; }) {
+function ConfettiBurst({
+  delay,
+  x,
+  y,
+  color,
+  size,
+}: {
+  delay: number;
+  x: number;
+  y: number;
+  color: string;
+  size: number;
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0, x: 0, y: 0 }}

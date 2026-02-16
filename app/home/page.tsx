@@ -89,7 +89,7 @@ export default function HomePage() {
           {/* --- 2. Prominent Hero Action --- */}
           <motion.div variants={itemVariants}>
             <button
-              onClick={() => router.push("/onboarding/quiz")}
+              onClick={() => router.push("/trips/new")}
               className="group relative w-full overflow-hidden rounded-[32px] bg-[#0B0C0F] p-8 text-left shadow-2xl shadow-black/20 transition-all active:scale-[0.98]"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-[#1d1d1f] to-black opacity-50" />
