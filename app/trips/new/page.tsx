@@ -11,7 +11,7 @@ export default function NewTripPage() {
   const router = useRouter();
 
   // --- State ---
-  const [activeTab, setActiveTab] = useState("trips");
+  const [activeTab, setActiveTab] = useState("home");
   const [budget, setBudget] = useState(300);
   const [days, setDays] = useState(3);
   const [departure, setDeparture] = useState("");
@@ -40,11 +40,11 @@ export default function NewTripPage() {
 
   return (
     <main className="min-h-screen w-full bg-[#FAFAFA] text-[#1D1D1F] flex flex-col items-center font-sans selection:bg-[#8E7AF6]/20">
-      {/* Scrollable Container with increased bottom padding to clear fixed CTA */}
+      {/* Scrollable Container with enough bottom padding to clear the fixed CTA */}
       <div className="w-full max-w-[430px] flex-1 flex flex-col relative bg-[#FAFAFA] min-h-screen pb-[240px]">
         
-        {/* --- Header: Increased Top Spacing for App Consistency --- */}
-        <header className="sticky top-0 z-40 bg-[#FAFAFA]/80 backdrop-blur-md px-6 pt-14 pb-4 flex items-center justify-between border-b border-black/5">
+        {/* --- Header: Reset to original top spacing --- */}
+        <header className="sticky top-0 z-40 bg-[#FAFAFA]/80 backdrop-blur-md px-6 pt-6 pb-4 flex items-center justify-between border-b border-black/5">
           <button
             onClick={() => router.back()}
             className="h-10 w-10 rounded-full bg-white shadow-sm ring-1 ring-black/5 flex items-center justify-center text-black/60 active:scale-95 transition-all"
@@ -59,13 +59,13 @@ export default function NewTripPage() {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="px-6 pt-8 space-y-10"
+          className="px-6 pt-6 space-y-10"
         >
           {/* 1. Money & Time Section */}
           <motion.section variants={itemVariants} className="space-y-8 bg-white p-6 rounded-[28px] shadow-sm border border-black/5">
             <div className="space-y-4">
               <div className="flex justify-between items-end">
-                <label className="text-[11px] font-black uppercase tracking-widest text-black/30">Budget</label>
+                <label className="text-[11px] font-black uppercase tracking-widest text-black/30">Medium Budget</label>
                 <span className="text-[28px] font-black text-[#8E7AF6]">€{budget}</span>
               </div>
               <input
@@ -75,6 +75,7 @@ export default function NewTripPage() {
                 value={budget}
                 onChange={(e) => setBudget(Number(e.target.value))}
                 className="w-full h-1.5 bg-[#8E7AF6]/10 rounded-full appearance-none cursor-pointer accent-[#8E7AF6]"
+                style={{ touchAction: 'none' }}
               />
             </div>
 
@@ -90,6 +91,7 @@ export default function NewTripPage() {
                 value={days}
                 onChange={(e) => setDays(Number(e.target.value))}
                 className="w-full h-1.5 bg-[#8E7AF6]/10 rounded-full appearance-none cursor-pointer accent-[#8E7AF6]"
+                style={{ touchAction: 'none' }}
               />
             </div>
           </motion.section>
@@ -142,14 +144,14 @@ export default function NewTripPage() {
             </div>
           </motion.section>
 
-          {/* 4. Travelers Section - Now has clear space at bottom */}
+          {/* 4. Travelers Section - Clear scroll space at bottom */}
           <motion.section variants={itemVariants} className="space-y-4">
             <div className="flex items-center justify-between px-2">
               <label className="text-[11px] font-black uppercase tracking-widest text-black/30">Travelers</label>
-              <div className="flex items-center gap-5 bg-white px-4 py-2 rounded-full shadow-sm border border-black/5">
-                <button onClick={() => setPeople(p => Math.max(1, p-1))} className="text-[#8E7AF6] font-bold text-xl active:scale-75 transition-transform">−</button>
-                <span className="font-black text-lg w-4 text-center">{people}</span>
-                <button onClick={() => setPeople(p => p + 1)} className="text-[#8E7AF6] font-bold text-xl active:scale-75 transition-transform">+</button>
+              <div className="flex items-center gap-5 bg-white px-4 py-2 rounded-full shadow-sm border border-black/5 select-none">
+                <button onClick={() => setPeople(p => Math.max(1, p-1))} className="text-[#8E7AF6] font-bold text-xl active:scale-75 transition-transform p-2 disabled:opacity-30" disabled={people <= 1}>−</button>
+                <span className="font-black text-lg w-4 text-center tabular-nums">{people}</span>
+                <button onClick={() => setPeople(p => p + 1)} className="text-[#8E7AF6] font-bold text-xl active:scale-75 transition-transform p-2 disabled:opacity-30" disabled={people >= 10}>+</button>
               </div>
             </div>
 
@@ -179,7 +181,7 @@ export default function NewTripPage() {
           </motion.section>
         </motion.div>
 
-        {/* --- Fixed CTA Section: Adjusted Z-index and Layout --- */}
+        {/* --- Fixed CTA Section --- */}
         <div className="fixed bottom-[110px] left-0 right-0 px-6 max-w-[430px] mx-auto z-50 pointer-events-none">
           <div className="pointer-events-auto">
             <button
