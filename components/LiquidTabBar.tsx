@@ -17,7 +17,7 @@ export default function LiquidTabBar() {
     <div className="fixed bottom-8 left-0 right-0 z-50 flex justify-center pointer-events-none px-6">
       <div className="pointer-events-auto relative flex items-center justify-between px-2 h-[72px] w-full max-w-[340px] rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.12)] border border-white/30 overflow-hidden">
         {/* Liquid Glass Background */}
-        <div className="absolute inset-0 bg-white/70 backdrop-blur-[24px]" />
+        <div className="absolute inset-0 bg-white/40 backdrop-blur-[10px]" />
         <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-transparent opacity-50 pointer-events-none" />
 
         {/* Home Tab */}
