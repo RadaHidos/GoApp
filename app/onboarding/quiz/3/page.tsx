@@ -114,7 +114,7 @@ export default function OnboardingQuizPage3() {
           </button>
 
           <button
-            onClick={() => router.push("/onboarding/success")}
+            onClick={() => router.push("/onboarding/building")}
             className="text-[14px] font-bold text-black/30 hover:text-black/60 transition-colors uppercase tracking-widest"
           >
             I'll decide later
