@@ -83,9 +83,9 @@ export default function HomePage() {
               <h3 className="text-[20px] font-bold text-black tracking-tight">
                 Trending Escapes
               </h3>
-              <button className="text-[14px] font-bold text-[#8E7AF6]">
+              {/* <button className="text-[14px] font-bold text-[#8E7AF6]">
                 See all
-              </button>
+              </button> */}
             </div>
 
             <div className="-mx-6 px-6 overflow-x-auto no-scrollbar flex gap-5 pb-2 snap-x snap-mandatory">
@@ -121,7 +121,7 @@ export default function HomePage() {
             </div>
           </motion.div>
 
-          {/* Made For You - Now with unique images */}
+          {/* Travelers Like You Enjoyed - Now with unique images */}
           <motion.div
             variants={{
               hidden: { opacity: 0, y: 12 },
@@ -130,7 +130,7 @@ export default function HomePage() {
             className="space-y-4"
           >
             <h3 className="text-[20px] font-bold text-black tracking-tight px-1">
-              Made for You
+              Travelers Like You Enjoyed
             </h3>
             <div className="space-y-3">
               {FOR_YOU.map((item, i) => (
