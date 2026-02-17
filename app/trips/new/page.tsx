@@ -216,7 +216,15 @@ export default function NewTripPage() {
           <div className="pointer-events-auto">
             <button
               disabled={!canSubmit}
-              onClick={() => router.push("/trips/result")}
+              onClick={() => {
+                const query = new URLSearchParams({
+                  budget: budget.toString(),
+                  days: days.toString(),
+                  departure: departure || "Amsterdam",
+                  destination: destination || "Barcelona",
+                }).toString();
+                router.push(`/trips/result?${query}`);
+              }}
               className="w-full bg-[#1D1D1F] text-white font-black h-16 rounded-[24px] shadow-2xl flex items-center justify-center gap-2 active:scale-95 transition-all disabled:opacity-20"
             >
               Generate Itinerary{" "}
