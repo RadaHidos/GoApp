@@ -9,11 +9,36 @@ const easeOut = [0.22, 1, 0.36, 1] as const;
 export default function AuthPage() {
   const router = useRouter();
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08,
+        delayChildren: 0.05,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 12 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: easeOut },
+    },
+  };
+
   return (
     <main className="min-h-screen w-full bg-[#FAFAFA] text-[#1D1D1F]">
-      <div className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 py-6 font-sans">
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 py-6 font-sans"
+      >
         {/* Unified Navigation Header */}
-        <header className="mb-8">
+        <motion.header variants={itemVariants} className="mb-8">
           <button
             onClick={() => router.push("/")}
             className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-black shadow-sm ring-1 ring-black/5 transition-transform active:scale-95"
@@ -21,14 +46,9 @@ export default function AuthPage() {
           >
             <ArrowLeftIcon />
           </button>
-        </header>
+        </motion.header>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1, ease: easeOut }}
-          className="mb-12 px-1"
-        >
+        <motion.div variants={itemVariants} className="mb-12 px-1">
           <h1 className="mb-3 text-[34px] font-bold leading-[1.1] tracking-tight text-black">
             Your next journey <br /> starts here.
           </h1>
@@ -39,36 +59,36 @@ export default function AuthPage() {
 
         {/* Action List - High Recognition Over Recall */}
         <div className="flex w-full flex-col gap-4">
-          <SocialButton
-            onClick={() => router.push("/onboarding/study")}
-            icon={<AppleIcon />}
-            label="Continue with Apple"
-            variant="dark"
-            delay={0.2}
-          />
-          <SocialButton
-            onClick={() => router.push("/onboarding/study")}
-            icon={<GoogleIcon />}
-            label="Continue with Google"
-            variant="light"
-            delay={0.3}
-          />
-
-          <SocialButton
-            onClick={() => router.push("/auth/email")}
-            icon={<EmailIcon />}
-            label="Sign Up with Email"
-            variant="light"
-            delay={0.4}
-          />
+          <motion.div variants={itemVariants} className="w-full">
+            <SocialButton
+              onClick={() => router.push("/onboarding/study")}
+              icon={<AppleIcon />}
+              label="Continue with Apple"
+              variant="dark"
+            />
+          </motion.div>
+          <motion.div variants={itemVariants} className="w-full">
+            <SocialButton
+              onClick={() => router.push("/onboarding/study")}
+              icon={<GoogleIcon />}
+              label="Continue with Google"
+              variant="light"
+            />
+          </motion.div>
+          <motion.div variants={itemVariants} className="w-full">
+            <SocialButton
+              onClick={() => router.push("/auth/email")}
+              icon={<EmailIcon />}
+              label="Sign Up with Email"
+              variant="light"
+            />
+          </motion.div>
         </div>
 
         <div className="flex-1" />
 
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
+          variants={itemVariants}
           className="mt-8 flex flex-col items-center gap-6 pb-4"
         >
           <p className="text-[16px] font-medium text-black/60">
@@ -86,7 +106,7 @@ export default function AuthPage() {
             <span className="underline">Privacy Policy</span>.
           </div>
         </motion.div>
-      </div>
+      </motion.div>
     </main>
   );
 }
@@ -97,21 +117,16 @@ function SocialButton({
   icon,
   onClick,
   variant,
-  delay,
 }: {
   label: string;
   icon: ReactNode;
   onClick: () => void;
   variant: "dark" | "light";
-  delay: number;
 }) {
   const isDark = variant === "dark";
   return (
-    <motion.button
+    <button
       onClick={onClick}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay, ease: easeOut }}
       className={`relative flex w-full items-center justify-center rounded-full py-[18px] text-[17px] font-bold transition-all active:scale-[0.98] ${
         isDark
           ? "bg-[#0B0C0F] text-white shadow-xl"
@@ -120,7 +135,7 @@ function SocialButton({
     >
       <span className="absolute left-6">{icon}</span>
       {label}
-    </motion.button>
+    </button>
   );
 }
 
