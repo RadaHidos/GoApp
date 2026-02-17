@@ -9,7 +9,9 @@ export default function LiquidTabBar() {
 
   const isHomeActive = pathname?.startsWith("/home");
   const isTripsActive =
-    pathname?.startsWith("/trips") && pathname !== "/trips/new";
+    pathname?.startsWith("/trips") &&
+    pathname !== "/trips/new" &&
+    !pathname?.startsWith("/trips/result");
 
   return (
     <div className="fixed bottom-8 left-0 right-0 z-50 flex justify-center pointer-events-none px-6">
