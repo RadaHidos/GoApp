@@ -29,7 +29,6 @@ export default function NewTripPage() {
   const router = useRouter();
 
   // --- State ---
-  const [activeTab, setActiveTab] = useState("home");
   const [budget, setBudget] = useState(300);
   const [days, setDays] = useState(3);
   const [departure, setDeparture] = useState("");
@@ -233,19 +232,7 @@ export default function NewTripPage() {
           </div>
         </div>
 
-        <LiquidTabBar
-          tabs={[
-            { id: "home", label: "Home", icon: <HomeIcon /> },
-            { id: "explore", label: "Explore", icon: <SearchIcon /> },
-            { id: "trips", label: "Trips", icon: <PlaneIcon /> },
-            { id: "profile", label: "Profile", icon: <UserIcon /> },
-          ]}
-          activeTab={activeTab}
-          onChange={(id) => {
-            setActiveTab(id);
-            router.push(`/${id === "home" ? "home" : id}`);
-          }}
-        />
+        <LiquidTabBar />
       </div>
     </main>
   );

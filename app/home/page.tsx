@@ -9,22 +9,6 @@ const easeOut = [0.22, 1, 0.36, 1] as const;
 
 export default function HomePage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("home");
-
-  const tabs = [
-    { id: "home", label: "Home", icon: <HomeIcon /> },
-    { id: "explore", label: "Explore", icon: <SearchIcon /> },
-    { id: "trips", label: "Trips", icon: <PlaneIcon /> },
-    { id: "profile", label: "Profile", icon: <UserIcon /> },
-  ];
-
-  const handleTabChange = (id: string) => {
-    setActiveTab(id);
-    if (id !== "home") {
-      // You can implement routing here if pages exist
-      // router.push(`/${id}`);
-    }
-  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -184,11 +168,7 @@ export default function HomePage() {
         </motion.div>
 
         {/* --- iOS Glass NavBar --- */}
-        <LiquidTabBar
-          tabs={tabs}
-          activeTab={activeTab}
-          onChange={handleTabChange}
-        />
+        <LiquidTabBar />
       </div>
     </main>
   );

@@ -222,28 +222,7 @@ function TripResultContent() {
         </div>
       </div>
 
-      <LiquidTabBar
-        tabs={[
-          { id: "home", label: "Home", icon: <HomeIcon className="w-6 h-6" /> },
-          {
-            id: "explore",
-            label: "Explore",
-            icon: <SearchIcon className="w-6 h-6" />,
-          },
-          {
-            id: "trips",
-            label: "Trips",
-            icon: <PlaneIcon className="w-6 h-6" />,
-          },
-          {
-            id: "profile",
-            label: "Profile",
-            icon: <UserIcon className="w-6 h-6" />,
-          },
-        ]}
-        activeTab="home"
-        onChange={(id) => id === "home" && router.push("/home")}
-      />
+      <LiquidTabBar />
     </main>
   );
 }
