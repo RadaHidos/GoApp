@@ -39,7 +39,7 @@ export default function LiquidTabBar() {
             />
           </div>
           <span
-            className={`relative z-20 text-[10px] font-bold tracking-tight ${isHomeActive ? "text-black" : "text-black/30"}`}
+            className={`relative z-20 text-[10px] tracking-tight ${isHomeActive ? "text-black" : "text-black/30"}`}
           >
             Home
           </span>
@@ -78,7 +78,7 @@ export default function LiquidTabBar() {
             />
           </div>
           <span
-            className={`relative z-20 text-[10px] font-bold tracking-tight ${isTripsActive ? "text-black" : "text-black/30"}`}
+            className={`relative z-20 text-[10px] tracking-tight ${isTripsActive ? "text-black" : "text-black/30"}`}
           >
             History
           </span>
