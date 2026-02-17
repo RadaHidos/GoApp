@@ -28,6 +28,7 @@ function TripResultContent() {
   const [loading, setLoading] = useState(true);
   const [selectedFlightId, setSelectedFlightId] = useState(FLIGHTS[0].id);
   const [selectedStayId, setSelectedStayId] = useState(STAYS[0].id);
+  const [isBrunchOpen, setIsBrunchOpen] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1200);
@@ -90,7 +91,7 @@ function TripResultContent() {
       </header>
 
       <div className="w-full max-w-[430px] px-6 mt-6 space-y-10">
-        {/* --- Hero: Spending Insight (Hierarchy & Visual Weight) --- */}
+        {/* --- Hero: Spending Insight --- */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -131,7 +132,6 @@ function TripResultContent() {
               </div>
             </div>
           </div>
-          {/* Subtle background glow */}
           <div className="absolute -right-20 -top-20 w-64 h-64 bg-[#8E7AF6]/20 blur-[100px] rounded-full" />
         </motion.div>
 
@@ -186,7 +186,7 @@ function TripResultContent() {
           </div>
         </section>
 
-        {/* --- Timeline: Itinerary (Progressive Disclosure) --- */}
+        {/* --- Timeline: Itinerary (Modified Part) --- */}
         <section className="space-y-6">
           <div className="flex items-center gap-3 px-1">
             <div className="h-8 w-8 rounded-xl bg-[#8E7AF6]/10 flex items-center justify-center">
@@ -199,13 +199,57 @@ function TripResultContent() {
             {ITINERARY.slice(0, days * 2).map((item, i) => (
               <div key={i} className="relative">
                 <div className="absolute -left-[33px] top-1 h-4 w-4 rounded-full bg-white border-4 border-[#8E7AF6]" />
-                <div className="space-y-1">
+                <div className="space-y-2">
                   <span className="text-[11px] font-black uppercase tracking-widest text-black/30">
                     Day {item.day} • {item.period}
                   </span>
                   <p className="text-[16px] font-bold text-black">
                     {item.activity}
                   </p>
+                  
+                  {/* Accordion for Brunch Options - Contextual Disclosure */}
+                  {item.activity.includes("Brunch") && (
+                    <div className="mt-2">
+                      <button 
+                        onClick={() => setIsBrunchOpen(!isBrunchOpen)}
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#8E7AF6]/10 border border-[#8E7AF6]/20 active:scale-95 transition-all"
+                      >
+                        <span className="text-[12px] font-bold text-[#8E7AF6]">See local brunch spots</span>
+                        <motion.div animate={{ rotate: isBrunchOpen ? 180 : 0 }}>
+                          <ChevronDownIcon className="h-3 w-3 text-[#8E7AF6]" />
+                        </motion.div>
+                      </button>
+
+                      <AnimatePresence>
+                        {isBrunchOpen && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="pt-3 space-y-2">
+                              {BRUNCH_OPTIONS[selectedStayId as keyof typeof BRUNCH_OPTIONS].map((option, idx) => (
+                                <motion.div 
+                                  key={idx}
+                                  initial={{ x: -10, opacity: 0 }}
+                                  animate={{ x: 0, opacity: 1 }}
+                                  transition={{ delay: idx * 0.1 }}
+                                  className="p-3 rounded-2xl bg-white border border-black/5 shadow-sm"
+                                >
+                                  <div className="flex justify-between items-center">
+                                    <span className="font-bold text-[14px]">{option.name}</span>
+                                    <span className="text-[11px] font-bold text-[#8E7AF6]">{option.dist}</span>
+                                  </div>
+                                  <p className="text-[12px] text-black/40 font-medium">{option.vibe}</p>
+                                </motion.div>
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -229,16 +273,7 @@ function TripResultContent() {
 
 // --- High-Fidelity Components ---
 
-function SelectCard({
-  active,
-  onClick,
-  deal,
-  title,
-  subtitle,
-  price,
-  tag,
-  imageColor,
-}: any) {
+function SelectCard({ active, onClick, deal, title, subtitle, price, tag, imageColor }: any) {
   return (
     <motion.div
       onClick={onClick}
@@ -250,23 +285,17 @@ function SelectCard({
       }`}
     >
       {imageColor && (
-        <div
-          className={`h-16 w-16 rounded-2xl ${imageColor} shrink-0 shadow-inner`}
-        />
+        <div className={`h-16 w-16 rounded-2xl ${imageColor} shrink-0 shadow-inner`} />
       )}
       <div className="flex-1">
         <div className="flex items-center gap-2 mb-1">
           <h4 className="font-bold text-[16px]">{title}</h4>
-          {deal && (
-            <span className="bg-[#8E7AF6]/10 text-[#8E7AF6] text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md">
-              Deal
-            </span>
-          )}
+          {deal && <span className="bg-[#8E7AF6]/10 text-[#8E7AF6] text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md">Deal</span>}
         </div>
         <p className="text-[13px] font-medium text-black/40">{subtitle}</p>
       </div>
       <div className="text-right">
-        <p className="text-[18px] font-black">{price}</p>
+        <p className="text-[18px] font-black">€{price}</p>
         <p className="text-[11px] font-bold text-black/20 uppercase">{tag}</p>
       </div>
     </motion.div>
@@ -275,164 +304,30 @@ function SelectCard({
 
 // --- UI Icons ---
 function ChevronLeftIcon(props: any) {
-  return (
-    <svg
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={2.5}
-      {...props}
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-    </svg>
-  );
+  return <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>;
+}
+function ChevronDownIcon(props: any) {
+  return <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3} {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>;
 }
 function PlaneIcon(props: any) {
-  return (
-    <svg
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={2}
-      {...props}
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-      />
-    </svg>
-  );
+  return <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>;
 }
 function BedIcon(props: any) {
-  return (
-    <svg
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={2}
-      {...props}
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-      />
-    </svg>
-  );
+  return <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>;
 }
 function CalendarIcon(props: any) {
-  return (
-    <svg
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={2}
-      {...props}
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-      />
-    </svg>
-  );
-}
-function HomeIcon(props: any) {
-  return (
-    <svg
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={1.5}
-      {...props}
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-      />
-    </svg>
-  );
-}
-function SearchIcon(props: any) {
-  return (
-    <svg
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={2.5}
-      {...props}
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-      />
-    </svg>
-  );
-}
-function UserIcon(props: any) {
-  return (
-    <svg
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={1.5}
-      {...props}
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-      />
-    </svg>
-  );
+  return <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
 }
 
 // --- Static Mock Data ---
 const FLIGHTS = [
-  {
-    id: "f1",
-    airline: "StudentAir",
-    time: "07:30 - 09:45",
-    duration: "2h 15m",
-    price: 85,
-    stops: "Direct",
-    deal: true,
-  },
-  {
-    id: "f2",
-    airline: "BudgetFly",
-    time: "14:00 - 16:30",
-    duration: "2h 30m",
-    price: 110,
-    stops: "Direct",
-    deal: false,
-  },
+  { id: "f1", airline: "StudentAir", time: "07:30 - 09:45", duration: "2h 15m", price: 85, stops: "Direct", deal: true },
+  { id: "f2", airline: "BudgetFly", time: "14:00 - 16:30", duration: "2h 30m", price: 110, stops: "Direct", deal: false },
 ];
 
 const STAYS = [
-  {
-    id: "s1",
-    type: "Hostel",
-    name: "Youth City Hub",
-    rating: 4.8,
-    distance: "0.5km center",
-    price: 35,
-    image: "bg-orange-400/20",
-    deal: true,
-  },
-  {
-    id: "s2",
-    type: "Hotel",
-    name: "Budget Inn Central",
-    rating: 4.2,
-    distance: "1.2km center",
-    price: 65,
-    image: "bg-blue-400/20",
-    deal: false,
-  },
+  { id: "s1", type: "Hostel", name: "Youth City Hub", rating: 4.8, distance: "0.5km center", price: 35, image: "bg-orange-400/20", deal: true },
+  { id: "s2", type: "Hotel", name: "Budget Inn Central", rating: 4.2, distance: "1.2km center", price: 65, image: "bg-blue-400/20", deal: false },
 ];
 
 const ITINERARY = [
@@ -441,3 +336,15 @@ const ITINERARY = [
   { day: 2, period: "Morning", activity: "Cultural Museum (Student Pass)" },
   { day: 2, period: "Afternoon", activity: "Sunset Hike / Viewpoint" },
 ];
+
+// Contextual Brunch data based on chosen Accommodation
+const BRUNCH_OPTIONS = {
+  s1: [
+    { name: "Federal Café", vibe: "Great coffee & laptop friendly", dist: "200m away" },
+    { name: "Milk Bar", vibe: "Classic pancakes & budget friendly", dist: "350m away" }
+  ],
+  s2: [
+    { name: "EatMyTrip", vibe: "Fancy waffles & great photos", dist: "400m away" },
+    { name: "Brunch & Cake", vibe: "Iconic plates & healthy options", dist: "150m away" }
+  ]
+};
