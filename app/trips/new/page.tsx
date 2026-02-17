@@ -50,7 +50,7 @@ export default function NewTripPage() {
 
   return (
     <main className="min-h-screen w-full bg-[#FAFAFA] text-[#1D1D1F] flex flex-col items-center font-sans selection:bg-[#8E7AF6]/20">
-      <div className="w-full max-w-[430px] flex-1 flex flex-col relative bg-[#FAFAFA] min-h-screen pb-[240px]">
+      <div className="w-full max-w-[430px] flex-1 flex flex-col relative bg-[#FAFAFA] min-h-screen pb-[120px]">
         <header className="sticky top-0 z-40 bg-[#FAFAFA]/80 backdrop-blur-md px-6 pt-6 pb-4 flex items-center justify-between border-b border-black/5">
           <button
             onClick={() => router.push("/home")}
@@ -211,7 +211,7 @@ export default function NewTripPage() {
         </motion.div>
 
         {/* --- Fixed CTA Section --- */}
-        <div className="fixed bottom-[110px] left-0 right-0 px-6 max-w-[430px] mx-auto z-50 pointer-events-none">
+        <div className="w-full px-6 mt-10 z-50 pointer-events-none">
           <div className="pointer-events-auto">
             <button
               disabled={!canSubmit}

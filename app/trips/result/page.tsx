@@ -64,7 +64,7 @@ function TripResultContent() {
   }
 
   return (
-    <main className="min-h-screen w-full bg-[#FAFAFA] text-[#1D1D1F] flex flex-col items-center font-sans pb-[260px]">
+    <main className="min-h-screen w-full bg-[#FAFAFA] text-[#1D1D1F] flex flex-col items-center font-sans pb-[120px]">
       {/* --- Sticky Header --- */}
       <header className="sticky top-0 z-50 w-full max-w-[430px] bg-[#FAFAFA]/80 backdrop-blur-xl px-6 py-4 flex items-center justify-between border-b border-black/5">
         <button
@@ -214,7 +214,7 @@ function TripResultContent() {
       </div>
 
       {/* --- Global Action Footer --- */}
-      <div className="fixed bottom-[100px] left-0 right-0 px-6 max-w-[430px] mx-auto z-50 pointer-events-none">
+      <div className="w-full px-6 mt-6 z-30 pointer-events-none">
         <div className="pointer-events-auto flex flex-col gap-3">
           <button className="w-full bg-[#1D1D1F] text-white font-black h-16 rounded-[24px] shadow-2xl flex items-center justify-center gap-2 active:scale-95 transition-all">
             Save this Adventure
