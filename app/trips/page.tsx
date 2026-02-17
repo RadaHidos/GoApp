@@ -62,23 +62,28 @@ export default function PastTripsPage() {
   const router = useRouter();
 
   return (
-    <main className="min-h-screen w-full bg-[#FAFAFA] text-[#1D1D1F] flex flex-col items-center font-sans">
+    <main className="min-h-screen w-full bg-[#FAFAFA] text-[#1D1D1F] flex flex-col items-center font-sans selection:bg-[#8E7AF6]/20">
       <div className="w-full max-w-[430px] flex-1 flex flex-col relative bg-[#FAFAFA] min-h-screen pb-[140px]">
-        {/* --- Standardized iOS Header with Profile Anchor --- */}
-        <header className="sticky top-0 z-40 bg-[#FAFAFA]/80 backdrop-blur-md px-6 pt-14 pb-4 border-b border-black/5 flex items-center justify-between">
-          <h1 className="text-[28px] font-black tracking-tight text-black">
-            Your Travels
-          </h1>
+        {/* --- Unified Header: Exact Match to Home Page --- */}
+        <header className="px-6 pt-12 pb-6 flex items-center justify-between">
+          <div className="space-y-1">
+            <h1 className="text-[32px] font-bold tracking-tight text-black leading-tight">
+              Your Travels
+            </h1>
+            <p className="text-[16px] font-medium text-black/40">
+              Review your adventures
+            </p>
+          </div>
 
-          {/* Avatar with Status Signifier (Matches Home Page) */}
+          {/* Global Profile Anchor */}
           <div className="relative">
             <button
               onClick={() => router.push("/profile")}
-              className="h-10 w-10 rounded-full bg-white shadow-sm ring-1 ring-black/5 overflow-hidden flex items-center justify-center active:scale-95 transition-all"
+              className="h-12 w-12 rounded-full bg-white shadow-sm ring-1 ring-black/5 overflow-hidden flex items-center justify-center active:scale-95 transition-all"
             >
-              <span className="font-bold text-[#8E7AF6] text-sm">RH</span>
+              <span className="font-bold text-[#8E7AF6]">RH</span>
             </button>
-            <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-green-500 border-2 border-[#FAFAFA]" />
+            <div className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-green-500 border-2 border-[#FAFAFA]" />
           </div>
         </header>
 
@@ -87,21 +92,26 @@ export default function PastTripsPage() {
           animate="visible"
           variants={{
             hidden: { opacity: 0 },
-            visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+            visible: {
+              opacity: 1,
+              transition: { staggerChildren: 0.08, delayChildren: 0.1 },
+            },
           }}
-          className="px-6 pt-8 space-y-8"
+          className="px-6 space-y-10" // Matches Home Page spacing
         >
-          {PAST_TRIPS.map((trip) => (
-            <TripHistoryCard key={trip.id} trip={trip} />
-          ))}
+          <div className="space-y-4">
+            {PAST_TRIPS.map((trip) => (
+              <TripHistoryCard key={trip.id} trip={trip} />
+            ))}
+          </div>
 
           {/* --- Empty State --- */}
           {PAST_TRIPS.length === 0 && (
-            <div className="flex flex-col items-center justify-center pt-20 text-center opacity-40">
+            <div className="flex flex-col items-center justify-center pt-20 text-center opacity-30">
               <div className="w-20 h-20 rounded-full bg-black/5 flex items-center justify-center mb-4">
                 <PlaneIcon className="h-8 w-8" />
               </div>
-              <p className="font-bold">No past adventures yet.</p>
+              <p className="font-bold text-[17px]">No past adventures yet.</p>
             </div>
           )}
         </motion.div>
@@ -112,48 +122,51 @@ export default function PastTripsPage() {
   );
 }
 
-// --- Card Component ---
 function TripHistoryCard({ trip }: { trip: any }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <motion.div
       variants={{
-        hidden: { opacity: 0, y: 20 },
-        visible: { opacity: 1, y: 0 },
+        hidden: { opacity: 0, y: 12 },
+        visible: {
+          opacity: 1,
+          y: 0,
+          transition: { duration: 0.5, ease: easeOut },
+        },
       }}
-      className="bg-white rounded-[32px] border border-black/5 shadow-sm overflow-hidden"
+      className="bg-white rounded-[28px] border border-black/5 shadow-sm overflow-hidden"
     >
-      <div className="p-6 flex items-center gap-4">
+      <div className="p-5 flex items-center gap-4">
         <div
-          className={`h-16 w-16 rounded-[24px] ${trip.image} flex items-center justify-center text-2xl shadow-inner`}
+          className={`h-14 w-14 rounded-[20px] ${trip.image} flex items-center justify-center text-xl shadow-inner`}
         >
           {trip.destination.includes("Barcelona") ? "☀️" : "☁️"}
         </div>
         <div className="flex-1">
-          <h3 className="font-black text-[18px] leading-tight">
+          <h3 className="font-bold text-[17px] text-black leading-tight">
             {trip.destination}
           </h3>
-          <p className="text-[13px] font-medium text-black/40">{trip.date}</p>
+          <p className="text-[14px] font-medium text-black/40">{trip.date}</p>
         </div>
         <div className="text-right">
-          <span className="text-[11px] font-black uppercase tracking-widest text-[#8E7AF6] block mb-1">
+          <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#8E7AF6] block mb-0.5">
             Spent
           </span>
-          <p className="font-black text-[17px]">€{trip.totalSpent}</p>
+          <p className="font-bold text-[17px] text-black">€{trip.totalSpent}</p>
         </div>
       </div>
 
-      <div className="px-6 pb-6">
+      <div className="px-5 pb-5">
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full py-3 rounded-2xl bg-[#F3F4F6] text-[13px] font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
+          className="w-full py-2.5 rounded-xl bg-[#FAFAFA] text-[13px] font-bold text-black/60 flex items-center justify-center gap-2 active:scale-[0.98] transition-all border border-black/[0.03]"
         >
           {isExpanded
-            ? "Hide Highlights"
-            : `Review ${trip.highlights.length} Places`}
+            ? "Hide Details"
+            : `Review ${trip.highlights.length} Highlights`}
           <ChevronDownIcon
-            className={`h-4 w-4 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+            className={`h-3.5 w-3.5 transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}
           />
         </button>
 
@@ -165,7 +178,7 @@ function TripHistoryCard({ trip }: { trip: any }) {
               exit={{ height: 0, opacity: 0 }}
               className="overflow-hidden"
             >
-              <div className="pt-4 space-y-4">
+              <div className="pt-4 space-y-3">
                 {trip.highlights.map((item: any) => (
                   <HighlightReviewItem key={item.id} item={item} />
                 ))}
@@ -178,27 +191,26 @@ function TripHistoryCard({ trip }: { trip: any }) {
   );
 }
 
-// --- Interactive Review Item ---
 function HighlightReviewItem({ item }: { item: any }) {
   const [rating, setRating] = useState(item.score);
 
   return (
-    <div className="flex items-center justify-between p-3 rounded-2xl border border-black/[0.03]">
+    <div className="flex items-center justify-between p-3 rounded-[18px] bg-[#FAFAFA] border border-black/[0.02]">
       <div>
-        <span className="text-[10px] font-black uppercase tracking-widest text-[#8E7AF6]/60">
+        <span className="text-[9px] font-black uppercase tracking-widest text-[#8E7AF6]/80">
           {item.type}
         </span>
-        <p className="font-bold text-[14px]">{item.name}</p>
+        <p className="font-bold text-[14px] text-black">{item.name}</p>
       </div>
-      <div className="flex gap-1">
+      <div className="flex gap-0.5">
         {[1, 2, 3, 4, 5].map((star) => (
           <button
             key={star}
             onClick={() => setRating(star)}
-            className="transition-transform active:scale-125"
+            className="transition-all active:scale-125 p-0.5"
           >
             <StarIcon
-              className={`h-4 w-4 ${star <= rating ? "text-[#8E7AF6] fill-[#8E7AF6]" : "text-black/10"}`}
+              className={`h-3.5 w-3.5 ${star <= rating ? "text-[#8E7AF6] fill-[#8E7AF6]" : "text-black/10"}`}
             />
           </button>
         ))}
@@ -221,7 +233,7 @@ function ChevronDownIcon(props: any) {
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
-      strokeWidth={2.5}
+      strokeWidth={3}
       {...props}
     >
       <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
@@ -234,14 +246,10 @@ function PlaneIcon(p: any) {
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
-      strokeWidth="1.5"
+      strokeWidth={2}
       {...p}
     >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-      />
+      <path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
     </svg>
   );
 }
