@@ -54,7 +54,7 @@ export default function NewTripPage() {
       <div className="w-full max-w-[430px] flex-1 flex flex-col relative bg-[#FAFAFA] min-h-screen pb-[240px]">
         <header className="sticky top-0 z-40 bg-[#FAFAFA]/80 backdrop-blur-md px-6 pt-6 pb-4 flex items-center justify-between border-b border-black/5">
           <button
-            onClick={() => router.back()}
+            onClick={() => router.push("/home")}
             className="h-10 w-10 rounded-full bg-white shadow-sm ring-1 ring-black/5 flex items-center justify-center text-black/60 active:scale-95 transition-all"
           >
             <ChevronLeftIcon className="h-5 w-5" />
