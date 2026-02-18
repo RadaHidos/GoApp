@@ -103,7 +103,7 @@ export default function NewTripPage() {
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden"
                   >
-                     <div className="pt-4">
+                    <div className="pt-4">
                       <label className="text-[11px] font-black uppercase tracking-widest text-black/30 mb-2 block">
                         Need a bigger budget?
                       </label>
@@ -272,6 +272,9 @@ export default function NewTripPage() {
                   days: days.toString(),
                   departure: departure || "Amsterdam",
                   destination: destination || "Barcelona",
+                  people: people.toString(),
+                  isCouple: isCouple.toString(),
+                  vibes: selectedVibes.join(","),
                 }).toString();
                 router.push(`/trips/result?${query}`);
               }}
