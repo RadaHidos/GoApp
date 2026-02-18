@@ -28,25 +28,28 @@ function TripResultContent() {
   const [loading, setLoading] = useState(true);
   const [selectedFlightId, setSelectedFlightId] = useState(FLIGHTS[0].id);
   const [selectedStayId, setSelectedStayId] = useState(STAYS[0].id);
-  const [isBrunchOpen, setIsBrunchOpen] = useState(false);
-  const [isWalkingOpen, setIsWalkingOpen] = useState(false);
-  const [isAttractionOpen, setIsAttractionOpen] = useState(false);
-  const [isHikeOpen, setIsHikeOpen] = useState(false);
+
+  // Unified state to prevent state collision "bugs"
+  const [activeAccordion, setActiveAccordion] = useState<string | null>(null);
+  const [selectedPlaces, setSelectedPlaces] = useState<string[]>([]);
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1200);
     return () => clearTimeout(timer);
   }, []);
 
-  // --- Real-time Calculations (Service Design) ---
+  const togglePlace = (id: string) => {
+    setSelectedPlaces((prev) =>
+      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id],
+    );
+  };
+
+  // Calculations & System Status
   const flight = FLIGHTS.find((f) => f.id === selectedFlightId)!;
   const stay = STAYS.find((s) => s.id === selectedStayId)!;
-
-  const flightCost = flight.price;
-  const totalStayCost = stay.price * days;
-  const estimatedExtras = 25 * days;
-  const totalCost = flightCost + totalStayCost + estimatedExtras;
-  const savings = budget - totalCost;
+  const totalCost = flight.price + stay.price * days + 25 * days;
+  const isOverBudget = totalCost > budget;
+  const diff = Math.abs(budget - totalCost);
   const progressPercent = Math.min((totalCost / budget) * 100, 100);
 
   if (loading) {
@@ -68,8 +71,8 @@ function TripResultContent() {
   }
 
   return (
-    <main className="min-h-screen w-full bg-[#FAFAFA] text-[#1D1D1F] flex flex-col items-center font-sans pb-[120px]">
-      {/* --- Sticky Header --- */}
+    <main className="min-h-screen w-full bg-[#FAFAFA] text-[#1D1D1F] flex flex-col items-center font-sans pb-5">
+      {/* Header */}
       <header className="sticky top-0 z-50 w-full max-w-[430px] bg-[#FAFAFA]/80 backdrop-blur-xl px-6 py-4 flex items-center justify-between border-b border-black/5">
         <button
           onClick={() => router.back()}
@@ -78,7 +81,7 @@ function TripResultContent() {
           <ChevronLeftIcon className="h-5 w-5" />
         </button>
         <div className="flex flex-col items-center">
-          <span className="text-[13px] font-black uppercase tracking-widest text-[#8E7AF6]">
+          <span className="text-[11px] font-black uppercase tracking-widest text-[#8E7AF6]">
             Generated Itinerary
           </span>
           <span className="text-[17px] font-bold text-black">
@@ -94,11 +97,11 @@ function TripResultContent() {
       </header>
 
       <div className="w-full max-w-[430px] px-6 mt-6 space-y-10">
-        {/* --- Hero: Spending Insight --- */}
+        {/* --- Hero: Budget Status pattern --- */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-[#1D1D1F] p-8 rounded-[32px] shadow-2xl relative overflow-hidden text-white"
+          className={`p-8 rounded-[36px] shadow-2xl relative overflow-hidden transition-colors duration-500 ${isOverBudget ? "bg-red-950" : "bg-[#1D1D1F]"} text-white`}
         >
           <div className="relative z-10">
             <div className="flex justify-between items-start mb-6">
@@ -106,11 +109,13 @@ function TripResultContent() {
                 <p className="text-[12px] font-bold text-white/40 uppercase tracking-widest">
                   Estimated Total
                 </p>
-                <h2 className="text-[42px] font-black tracking-tight">
+                <h2 className="text-[48px] font-black tracking-tighter">
                   €{totalCost}
                 </h2>
               </div>
-              <div className="bg-[#8E7AF6] text-white px-4 py-2 rounded-2xl text-[13px] font-black shadow-lg">
+              <div
+                className={`px-4 py-2 rounded-2xl text-[13px] font-black shadow-lg ${isOverBudget ? "bg-red-500" : "bg-[#8E7AF6]"}`}
+              >
                 €{budget} Budget
               </div>
             </div>
@@ -118,27 +123,29 @@ function TripResultContent() {
             <div className="space-y-3">
               <div className="flex justify-between items-end">
                 <span className="text-[13px] font-bold text-white/60">
-                  {savings >= 0
-                    ? `🔥 Saving €${savings}`
-                    : `⚠️ €${Math.abs(savings)} Over`}
+                  {isOverBudget
+                    ? `⚠️ €${diff} over budget`
+                    : `🔥 Saving €${diff}`}
                 </span>
                 <span className="text-[13px] font-bold">
                   {Math.round(progressPercent)}%
                 </span>
               </div>
-              <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
+              <div className="h-2.5 w-full bg-white/10 rounded-full overflow-hidden">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${progressPercent}%` }}
-                  className="h-full bg-[#8E7AF6]"
+                  className={`h-full rounded-full ${isOverBudget ? "bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)]" : "bg-[#8E7AF6] shadow-[0_0_15px_rgba(142,122,246,0.5)]"}`}
                 />
               </div>
             </div>
           </div>
-          <div className="absolute -right-20 -top-20 w-64 h-64 bg-[#8E7AF6]/20 blur-[100px] rounded-full" />
+          <div
+            className={`absolute -right-20 -top-20 w-64 h-64 blur-[100px] rounded-full opacity-20 ${isOverBudget ? "bg-red-500" : "bg-[#8E7AF6]"}`}
+          />
         </motion.div>
 
-        {/* --- Selection Section: Flights --- */}
+        {/* Transport & Stays remain same */}
         <section className="space-y-5">
           <div className="flex items-center gap-3 px-1">
             <div className="h-8 w-8 rounded-xl bg-[#8E7AF6]/10 flex items-center justify-center">
@@ -146,16 +153,14 @@ function TripResultContent() {
             </div>
             <h3 className="text-[20px] font-bold">Best Flights</h3>
           </div>
-
           <div className="space-y-3">
             {FLIGHTS.map((f) => (
               <SelectCard
                 key={f.id}
                 active={selectedFlightId === f.id}
                 onClick={() => setSelectedFlightId(f.id)}
-                deal={f.deal}
                 title={f.airline}
-                subtitle={`${f.time} • ${f.duration}`}
+                subtitle={f.time}
                 price={`€${f.price}`}
                 tag={f.stops}
               />
@@ -163,7 +168,6 @@ function TripResultContent() {
           </div>
         </section>
 
-        {/* --- Selection Section: Stays --- */}
         <section className="space-y-5">
           <div className="flex items-center gap-3 px-1">
             <div className="h-8 w-8 rounded-xl bg-[#8E7AF6]/10 flex items-center justify-center">
@@ -171,16 +175,14 @@ function TripResultContent() {
             </div>
             <h3 className="text-[20px] font-bold">Where to Stay</h3>
           </div>
-
           <div className="space-y-3">
             {STAYS.map((s) => (
               <SelectCard
                 key={s.id}
                 active={selectedStayId === s.id}
                 onClick={() => setSelectedStayId(s.id)}
-                deal={s.deal}
                 title={s.name}
-                subtitle={`${s.rating} ★ • ${s.distance}`}
+                subtitle={s.distance}
                 price={`€${s.price}`}
                 tag="/night"
                 imageColor={s.image}
@@ -189,7 +191,7 @@ function TripResultContent() {
           </div>
         </section>
 
-        {/* --- Timeline: Itinerary (Modified Part) --- */}
+        {/* --- Timeline with Fixed Selection Pattern --- */}
         <section className="space-y-6">
           <div className="flex items-center gap-3 px-1">
             <div className="h-8 w-8 rounded-xl bg-[#8E7AF6]/10 flex items-center justify-center">
@@ -198,272 +200,131 @@ function TripResultContent() {
             <h3 className="text-[20px] font-bold">Your Timeline</h3>
           </div>
 
-          <div className="relative pl-6 border-l-2 border-[#8E7AF6]/20 ml-4 space-y-10 py-2">
-            {ITINERARY.slice(0, days * 2).map((item, i) => (
-              <div key={i} className="relative">
-                <div className="absolute -left-[33px] top-1 h-4 w-4 rounded-full bg-white border-4 border-[#8E7AF6]" />
-                <div className="space-y-2">
-                  <span className="text-[11px] font-black uppercase tracking-widest text-black/30">
-                    Day {item.day} • {item.period}
-                  </span>
-                  <p className="text-[16px] font-bold text-black">
-                    {item.activity}
-                  </p>
+          <div className="relative pl-6 border-l-2 border-[#8E7AF6]/20 ml-4 space-y-12">
+            {ITINERARY.map((item, i) => {
+              const isOpen = activeAccordion === item.id;
+              const options =
+                DISCOVERY_DATA[item.id as keyof typeof DISCOVERY_DATA]?.[
+                  selectedStayId as keyof (typeof DISCOVERY_DATA)["brunch"]
+                ];
 
-                  {/* Accordion for Brunch Options - Contextual Disclosure */}
-                  {item.activity.includes("Brunch") && (
-                    <div className="mt-2">
-                      <button
-                        onClick={() => setIsBrunchOpen(!isBrunchOpen)}
-                        className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#8E7AF6]/10 border border-[#8E7AF6]/20 active:scale-95 transition-all"
-                      >
-                        <span className="text-[12px] font-bold text-[#8E7AF6]">
-                          See local brunch spots
-                        </span>
-                        <motion.div
-                          animate={{ rotate: isBrunchOpen ? 180 : 0 }}
+              return (
+                <div key={i} className="relative">
+                  <div className="absolute -left-[33px] top-1 h-4 w-4 rounded-full bg-white border-4 border-[#8E7AF6]" />
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <span className="text-[11px] font-black uppercase tracking-widest text-black/30">
+                        Day {item.day} • {item.period}
+                      </span>
+                      <p className="text-[17px] font-bold text-black">
+                        {item.activity}
+                      </p>
+                    </div>
+
+                    {options && (
+                      <div className="space-y-2">
+                        <button
+                          onClick={() =>
+                            setActiveAccordion(isOpen ? null : item.id)
+                          }
+                          className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#8E7AF6]/10 border border-[#8E7AF6]/20 active:scale-95 transition-all shadow-sm"
                         >
-                          <ChevronDownIcon className="h-3 w-3 text-[#8E7AF6]" />
-                        </motion.div>
-                      </button>
-
-                      <AnimatePresence>
-                        {isBrunchOpen && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            className="overflow-hidden"
-                          >
-                            <div className="pt-3 space-y-2">
-                              {BRUNCH_OPTIONS[
-                                selectedStayId as keyof typeof BRUNCH_OPTIONS
-                              ].map((option, idx) => (
-                                <motion.div
-                                  key={idx}
-                                  initial={{ x: -10, opacity: 0 }}
-                                  animate={{ x: 0, opacity: 1 }}
-                                  transition={{ delay: idx * 0.1 }}
-                                  className="p-3 rounded-2xl bg-white border border-black/5 shadow-sm"
-                                >
-                                  <div className="flex justify-between items-center">
-                                    <span className="font-bold text-[14px]">
-                                      {option.name}
-                                    </span>
-                                    <span className="text-[11px] font-bold text-[#8E7AF6]">
-                                      {option.dist}
-                                    </span>
-                                  </div>
-                                  <p className="text-[12px] text-black/40 font-medium">
-                                    {option.vibe}
-                                  </p>
-                                </motion.div>
-                              ))}
-                            </div>
+                          <span className="text-[12px] font-bold text-[#8E7AF6]">
+                            Suggested Picks
+                          </span>
+                          <motion.div animate={{ rotate: isOpen ? 180 : 0 }}>
+                            <ChevronDownIcon className="h-3 w-3 text-[#8E7AF6]" />
                           </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                  )}
+                        </button>
 
-                  {/* Accordion for Walking Around */}
-                  {item.activity.includes("Walking") && (
-                    <div className="mt-2">
-                      <button
-                        onClick={() => setIsWalkingOpen(!isWalkingOpen)}
-                        className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#8E7AF6]/10 border border-[#8E7AF6]/20 active:scale-95 transition-all"
-                      >
-                        <span className="text-[12px] font-bold text-[#8E7AF6]">
-                          Suggested routes
-                        </span>
-                        <motion.div
-                          animate={{ rotate: isWalkingOpen ? 180 : 0 }}
-                        >
-                          <ChevronDownIcon className="h-3 w-3 text-[#8E7AF6]" />
-                        </motion.div>
-                      </button>
+                        <AnimatePresence>
+                          {isOpen && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="pt-2 grid gap-3">
+                                {options.map((option) => (
+                                  <motion.div
+                                    key={option.id}
+                                    className={`p-4 rounded-[24px] border-2 transition-all flex flex-col justify-between ${
+                                      selectedPlaces.includes(option.id)
+                                        ? "border-[#8E7AF6] bg-white shadow-lg"
+                                        : "border-black/5 bg-white"
+                                    }`}
+                                  >
+                                    <div className="flex justify-between items-start mb-2">
+                                      <div
+                                        onClick={() => togglePlace(option.id)}
+                                        className="cursor-pointer pr-4"
+                                      >
+                                        <h4 className="font-bold text-[16px] leading-tight text-black">
+                                          {option.name}
+                                        </h4>
+                                        <p className="text-[13px] text-black/40 font-medium mt-1">
+                                          {option.vibe}
+                                        </p>
+                                      </div>
+                                      <div
+                                        onClick={() => togglePlace(option.id)}
+                                        className={`h-6 w-6 rounded-full border-2 flex items-center justify-center transition-colors cursor-pointer shrink-0 ${
+                                          selectedPlaces.includes(option.id)
+                                            ? "bg-[#8E7AF6] border-[#8E7AF6]"
+                                            : "border-black/10"
+                                        }`}
+                                      >
+                                        {selectedPlaces.includes(option.id) && (
+                                          <CheckIcon />
+                                        )}
+                                      </div>
+                                    </div>
 
-                      <AnimatePresence>
-                        {isWalkingOpen && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            className="overflow-hidden"
-                          >
-                            <div className="pt-3 space-y-2">
-                              {(
-                                WALKING_OPTIONS[
-                                  selectedStayId as keyof typeof WALKING_OPTIONS
-                                ] || WALKING_OPTIONS["s1"]
-                              ).map((option, idx) => (
-                                <motion.div
-                                  key={idx}
-                                  initial={{ x: -10, opacity: 0 }}
-                                  animate={{ x: 0, opacity: 1 }}
-                                  transition={{ delay: idx * 0.1 }}
-                                  className="p-3 rounded-2xl bg-white border border-black/5 shadow-sm"
-                                >
-                                  <div className="flex justify-between items-center">
-                                    <span className="font-bold text-[14px]">
-                                      {option.name}
-                                    </span>
-                                    <span className="text-[11px] font-bold text-[#8E7AF6]">
-                                      {option.dist}
-                                    </span>
-                                  </div>
-                                  <p className="text-[12px] text-black/40 font-medium">
-                                    {option.vibe}
-                                  </p>
-                                </motion.div>
-                              ))}
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                  )}
+                                    <div className="flex items-end justify-between mt-2">
+                                      <div className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-[#8E7AF6]">
+                                        <MapPinIcon className="h-3 w-3" />
+                                        {option.dist}
+                                      </div>
 
-                  {/* Accordion for Visiting Touristic Attractions */}
-                  {item.activity.includes("Vis") && (
-                    <div className="mt-2">
-                      <button
-                        onClick={() => setIsAttractionOpen(!isAttractionOpen)}
-                        className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#8E7AF6]/10 border border-[#8E7AF6]/20 active:scale-95 transition-all"
-                      >
-                        <span className="text-[12px] font-bold text-[#8E7AF6]">
-                          Top picks nearby
-                        </span>
-                        <motion.div
-                          animate={{ rotate: isAttractionOpen ? 180 : 0 }}
-                        >
-                          <ChevronDownIcon className="h-3 w-3 text-[#8E7AF6]" />
-                        </motion.div>
-                      </button>
-
-                      <AnimatePresence>
-                        {isAttractionOpen && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            className="overflow-hidden"
-                          >
-                            <div className="pt-3 space-y-2">
-                              {(
-                                ATTRACTION_OPTIONS[
-                                  selectedStayId as keyof typeof ATTRACTION_OPTIONS
-                                ] || ATTRACTION_OPTIONS["s1"]
-                              ).map((option, idx) => (
-                                <motion.div
-                                  key={idx}
-                                  initial={{ x: -10, opacity: 0 }}
-                                  animate={{ x: 0, opacity: 1 }}
-                                  transition={{ delay: idx * 0.1 }}
-                                  className="p-3 rounded-2xl bg-white border border-black/5 shadow-sm"
-                                >
-                                  <div className="flex justify-between items-center">
-                                    <span className="font-bold text-[14px]">
-                                      {option.name}
-                                    </span>
-                                    <span className="text-[11px] font-bold text-[#8E7AF6]">
-                                      {option.dist}
-                                    </span>
-                                  </div>
-                                  <p className="text-[12px] text-black/40 font-medium">
-                                    {option.vibe}
-                                  </p>
-                                </motion.div>
-                              ))}
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                  )}
-
-                  {/* Accordion for Sunset Hike */}
-                  {item.activity.includes("Hike") && (
-                    <div className="mt-2">
-                      <button
-                        onClick={() => setIsHikeOpen(!isHikeOpen)}
-                        className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#8E7AF6]/10 border border-[#8E7AF6]/20 active:scale-95 transition-all"
-                      >
-                        <span className="text-[12px] font-bold text-[#8E7AF6]">
-                          Best viewpoints
-                        </span>
-                        <motion.div animate={{ rotate: isHikeOpen ? 180 : 0 }}>
-                          <ChevronDownIcon className="h-3 w-3 text-[#8E7AF6]" />
-                        </motion.div>
-                      </button>
-
-                      <AnimatePresence>
-                        {isHikeOpen && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            className="overflow-hidden"
-                          >
-                            <div className="pt-3 space-y-2">
-                              {(
-                                HIKE_OPTIONS[
-                                  selectedStayId as keyof typeof HIKE_OPTIONS
-                                ] || HIKE_OPTIONS["s1"]
-                              ).map((option, idx) => (
-                                <motion.div
-                                  key={idx}
-                                  initial={{ x: -10, opacity: 0 }}
-                                  animate={{ x: 0, opacity: 1 }}
-                                  transition={{ delay: idx * 0.1 }}
-                                  className="p-3 rounded-2xl bg-white border border-black/5 shadow-sm"
-                                >
-                                  <div className="flex justify-between items-center">
-                                    <span className="font-bold text-[14px]">
-                                      {option.name}
-                                    </span>
-                                    <span className="text-[11px] font-bold text-[#8E7AF6]">
-                                      {option.dist}
-                                    </span>
-                                  </div>
-                                  <p className="text-[12px] text-black/40 font-medium">
-                                    {option.vibe}
-                                  </p>
-                                </motion.div>
-                              ))}
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                  )}
+                                      <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-50 border border-black/5 text-[11px] font-bold text-black/60 active:scale-95 transition-all hover:bg-[#8E7AF6]/5 hover:text-[#8E7AF6] hover:border-[#8E7AF6]/20">
+                                        <MapIcon className="h-3 w-3" />
+                                        See in Google Maps
+                                      </button>
+                                    </div>
+                                  </motion.div>
+                                ))}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       </div>
 
-      {/* --- Global Action Footer --- */}
-      <div className="w-full px-6 mt-6 z-30 pointer-events-none">
-        <div className="pointer-events-auto flex flex-col gap-3">
+      {/* Primary Action Footer */}
+      <div className="w-full max-w-[430px] px-6 mt-10 mb-[100px] pointer-events-none">
+        <div className="pointer-events-auto">
           <button className="w-full bg-[#1D1D1F] text-white font-black h-16 rounded-[24px] shadow-2xl flex items-center justify-center gap-2 active:scale-95 transition-all">
-            Save this Adventure
+            Save Adventure
           </button>
         </div>
       </div>
-
       <LiquidTabBar />
     </main>
   );
 }
 
-// --- High-Fidelity Components ---
-
+// Components & Data remain same structure to ensure no breakage
 function SelectCard({
   active,
   onClick,
-  deal,
   title,
   subtitle,
   price,
@@ -474,249 +335,371 @@ function SelectCard({
     <motion.div
       onClick={onClick}
       whileTap={{ scale: 0.98 }}
-      className={`relative p-5 rounded-[28px] bg-white border-2 transition-all cursor-pointer flex items-center gap-4 ${
-        active
-          ? "border-[#8E7AF6] shadow-xl shadow-[#8E7AF6]/5"
-          : "border-transparent shadow-sm"
-      }`}
+      className={`relative p-5 rounded-[28px] bg-white border-2 transition-all cursor-pointer flex items-center gap-4 ${active ? "border-[#8E7AF6] shadow-xl" : "border-transparent shadow-sm"}`}
     >
       {imageColor && (
         <div
-          className={`h-16 w-16 rounded-2xl ${imageColor} shrink-0 shadow-inner`}
+          className={`h-14 w-14 rounded-2xl ${imageColor} shrink-0 shadow-inner`}
         />
       )}
       <div className="flex-1">
-        <div className="flex items-center gap-2 mb-1">
-          <h4 className="font-bold text-[16px]">{title}</h4>
-          {deal && (
-            <span className="bg-[#8E7AF6]/10 text-[#8E7AF6] text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md">
-              Deal
-            </span>
-          )}
-        </div>
+        <h4 className="font-bold text-[16px]">{title}</h4>
         <p className="text-[13px] font-medium text-black/40">{subtitle}</p>
       </div>
-      <div className="text-right">
-        <p className="text-[18px] font-black">{price}</p>
-        <p className="text-[11px] font-bold text-black/20 uppercase">{tag}</p>
+      <div className="text-right font-black font-mono tracking-tight">
+        <p className="text-[18px]">{price}</p>
+        <p className="text-[11px] text-black/20 uppercase">{tag}</p>
       </div>
     </motion.div>
   );
 }
 
-// --- UI Icons ---
-function ChevronLeftIcon(props: any) {
+function ChevronLeftIcon(p: any) {
   return (
     <svg
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
       strokeWidth={2.5}
-      {...props}
+      {...p}
     >
-      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+      <path d="M15 19l-7-7 7-7" />
     </svg>
   );
 }
-function ChevronDownIcon(props: any) {
+function ChevronDownIcon(p: any) {
   return (
     <svg
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
       strokeWidth={3}
-      {...props}
+      {...p}
     >
-      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+      <path d="M19 9l-7 7-7-7" />
     </svg>
   );
 }
-function PlaneIcon(props: any) {
+function CheckIcon() {
+  return (
+    <svg
+      width="10"
+      height="10"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="white"
+      strokeWidth="4"
+    >
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+function MapIcon(p: any) {
   return (
     <svg
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
       strokeWidth={2}
-      {...props}
+      {...p}
     >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-      />
+      <path d="M9 20l-5 4V4l5 4 6-4 5 4v20l-5-4-6 4z" />
     </svg>
   );
 }
-function BedIcon(props: any) {
+function MapPinIcon(p: any) {
+  return (
+    <svg
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2.5}
+      {...p}
+    >
+      <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+      <circle cx="12" cy="11" r="3" />
+    </svg>
+  );
+}
+function PlaneIcon(p: any) {
   return (
     <svg
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
       strokeWidth={2}
-      {...props}
+      {...p}
     >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-      />
+      <path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
     </svg>
   );
 }
-function CalendarIcon(props: any) {
+function BedIcon(p: any) {
   return (
     <svg
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
       strokeWidth={2}
-      {...props}
+      {...p}
     >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-      />
+      <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10h3m10-11l2 2m-2-2v10" />
+    </svg>
+  );
+}
+function CalendarIcon(p: any) {
+  return (
+    <svg
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+      {...p}
+    >
+      <path d="M8 7V3m8 4V3m-9 8h10M5 21h14" />
     </svg>
   );
 }
 
-// --- Static Mock Data ---
 const FLIGHTS = [
   {
     id: "f1",
     airline: "StudentAir",
     time: "07:30 - 09:45",
-    duration: "2h 15m",
     price: 85,
     stops: "Direct",
-    deal: true,
   },
   {
     id: "f2",
     airline: "BudgetFly",
     time: "14:00 - 16:30",
-    duration: "2h 30m",
     price: 110,
     stops: "Direct",
-    deal: false,
   },
 ];
-
 const STAYS = [
   {
     id: "s1",
-    type: "Hostel",
     name: "Youth City Hub",
-    rating: 4.8,
     distance: "0.5km center",
     price: 35,
     image: "bg-orange-400/20",
-    deal: true,
   },
   {
     id: "s2",
-    type: "Hotel",
     name: "Budget Inn Central",
-    rating: 4.2,
     distance: "1.2km center",
     price: 65,
     image: "bg-blue-400/20",
-    deal: false,
+  },
+];
+const ITINERARY = [
+  {
+    id: "brunch",
+    day: 1,
+    period: "Morning",
+    activity: "Arrival & Local Brunch",
+  },
+  { id: "walking", day: 1, period: "Afternoon", activity: "Walking Around" },
+  {
+    id: "tourist",
+    day: 2,
+    period: "Morning",
+    activity: "Visiting Touristic Attractions",
+  },
+  {
+    id: "hike",
+    day: 2,
+    period: "Afternoon",
+    activity: "Sunset Hike / Viewpoint",
   },
 ];
 
-const ITINERARY = [
-  { day: 1, period: "Morning", activity: "Arrival & Local Brunch" },
-  { day: 1, period: "Afternoon", activity: "Walking Around" },
-  { day: 2, period: "Morning", activity: "Visiting Touristic Attractions" },
-  { day: 2, period: "Afternoon", activity: "Sunset Hike / Viewpoint" },
-];
-
-// Contextual Brunch data based on chosen Accommodation
-const BRUNCH_OPTIONS = {
-  s1: [
-    {
-      name: "Federal Café",
-      vibe: "Great coffee & laptop friendly",
-      dist: "200m away",
-    },
-    {
-      name: "Milk Bar",
-      vibe: "Classic pancakes & budget friendly",
-      dist: "350m away",
-    },
-  ],
-  s2: [
-    {
-      name: "EatMyTrip",
-      vibe: "Fancy waffles & great photos",
-      dist: "400m away",
-    },
-    {
-      name: "Brunch & Cake",
-      vibe: "Iconic plates & healthy options",
-      dist: "150m away",
-    },
-  ],
-};
-
-const WALKING_OPTIONS = {
-  s1: [
-    {
-      name: "Raval Street Art",
-      vibe: "Graffiti & hidden gems",
-      dist: "Starts 300m away",
-    },
-    {
-      name: "Gothic Quarter",
-      vibe: "Medieval history & mystery",
-      dist: "Start 800m away",
-    },
-  ],
-  s2: [
-    {
-      name: "Modernisme Route",
-      vibe: "Architecture & Gaudí",
-      dist: "Starts at door",
-    },
-  ],
-};
-
-const ATTRACTION_OPTIONS = {
-  s1: [
-    {
-      name: "Sagrada Família",
-      vibe: "Must-see masterpiece",
-      dist: "Metro L2 (15 min)",
-    },
-    {
-      name: "Park Güell",
-      vibe: "Abstract gardens & views",
-      dist: "Bus 24 (30 min)",
-    },
-  ],
-  s2: [
-    { name: "Casa Batlló", vibe: "Dragon house", dist: "5 min walk" },
-    { name: "La Pedrera", vibe: "Stone quarry facade", dist: "8 min walk" },
-  ],
-};
-
-const HIKE_OPTIONS = {
-  s1: [
-    {
-      name: "Bunkers del Carmel",
-      vibe: "Best 360° sunset",
-      dist: "Bus V17 (25 min)",
-    },
-  ],
-  s2: [
-    {
-      name: "Montjuïc Castle",
-      vibe: "Sea views & cable car",
-      dist: "Metro L3 (20 min)",
-    },
-  ],
+const DISCOVERY_DATA = {
+  brunch: {
+    s1: [
+      {
+        id: "b1",
+        name: "Federal Café",
+        vibe: "Great coffee",
+        dist: "200m away",
+      },
+      {
+        id: "b2",
+        name: "Milk Bar",
+        vibe: "Budget friendly",
+        dist: "350m away",
+      },
+      {
+        id: "b3",
+        name: "Caravelle",
+        vibe: "Tex-Mex fusion",
+        dist: "500m away",
+      },
+      { id: "b4", name: "Tropico", vibe: "Exotic fruits", dist: "600m away" },
+    ],
+    s2: [
+      { id: "b5", name: "EatMyTrip", vibe: "Fancy waffles", dist: "400m away" },
+      {
+        id: "b6",
+        name: "Brunch & Cake",
+        vibe: "Healthy options",
+        dist: "150m away",
+      },
+      {
+        id: "b7",
+        name: "Billy Brunch",
+        vibe: "Cozy atmosphere",
+        dist: "300m away",
+      },
+      { id: "b8", name: "Ugot", vibe: "Vintage cakes", dist: "450m away" },
+    ],
+  },
+  walking: {
+    s1: [
+      {
+        id: "w1",
+        name: "Gothic Quarter",
+        vibe: "History & Mystery",
+        dist: "2km walk",
+      },
+      {
+        id: "w2",
+        name: "Port Vell",
+        vibe: "Seafront stroll",
+        dist: "1 km walk",
+      },
+      {
+        id: "w3",
+        name: "El Born",
+        vibe: "Bohemian vibes",
+        dist: "600m walk",
+      },
+      {
+        id: "w4",
+        name: "Ciutadella Park",
+        vibe: "Green oasis",
+        dist: "900m walk",
+      },
+    ],
+    s2: [
+      {
+        id: "w5",
+        name: "Modernisme Route",
+        vibe: "Gaudi Architecture",
+        dist: "1.5km walk",
+      },
+      {
+        id: "w6",
+        name: "Raval Art",
+        vibe: "Urban street art",
+        dist: "300m walk",
+      },
+      {
+        id: "w7",
+        name: "Passeig de Gràcia",
+        vibe: "Luxury shopping",
+        dist: "100m walk",
+      },
+      {
+        id: "w8",
+        name: "Plaza Catalunya",
+        vibe: "City center hub",
+        dist: "400m walk",
+      },
+    ],
+  },
+  tourist: {
+    s1: [
+      {
+        id: "t1",
+        name: "Sagrada Família",
+        vibe: "Masterpiece",
+        dist: "Metro 12m",
+      },
+      { id: "t2", name: "Park Güell", vibe: "Mosaic gardens", dist: "Bus 20m" },
+      {
+        id: "t3",
+        name: "Picasso Museum",
+        vibe: "Art history",
+        dist: "Walk 15m",
+      },
+      {
+        id: "t4",
+        name: "Barceloneta Beach",
+        vibe: "Sunny vibes",
+        dist: "Walk 20m",
+      },
+    ],
+    s2: [
+      {
+        id: "t5",
+        name: "Sagrada Família",
+        vibe: "Masterpiece",
+        dist: "Metro 8m",
+      },
+      { id: "t6", name: "Casa Batlló", vibe: "Dragon house", dist: "Walk 5m" },
+      { id: "t7", name: "La Pedrera", vibe: "Quarry facade", dist: "Walk 10m" },
+      {
+        id: "t8",
+        name: "Magic Fountain",
+        vibe: "Light show",
+        dist: "Metro 15m",
+      },
+    ],
+  },
+  hike: {
+    s1: [
+      {
+        id: "h1",
+        name: "Bunkers del Carmel",
+        vibe: "Best 360° views",
+        dist: "Bus 25m",
+      },
+      {
+        id: "h2",
+        name: "Tibidabo",
+        vibe: "Theme park & views",
+        dist: "Bus 40m",
+      },
+      {
+        id: "h3",
+        name: "Collserola Park",
+        vibe: "Nature trails",
+        dist: "Train 30m",
+      },
+      {
+        id: "h4",
+        name: "Carretera de les Aigües",
+        vibe: "Flat walking path",
+        dist: "Train 25m",
+      },
+    ],
+    s2: [
+      {
+        id: "h5",
+        name: "Montjuïc Castle",
+        vibe: "Sea views",
+        dist: "Metro 15m",
+      },
+      {
+        id: "h6",
+        name: "Olympic Stadium",
+        vibe: "Sports history",
+        dist: "Metro 18m",
+      },
+      {
+        id: "h7",
+        name: "Botanical Gardens",
+        vibe: "Diverse flora",
+        dist: "Bus 20m",
+      },
+      {
+        id: "h8",
+        name: "Mirador de l'Alcalde",
+        vibe: "Port views",
+        dist: "Metro 15m",
+      },
+    ],
+  },
 };
