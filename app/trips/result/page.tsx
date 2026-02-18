@@ -47,7 +47,17 @@ function TripResultContent() {
   // Calculations & System Status
   const flight = FLIGHTS.find((f) => f.id === selectedFlightId)!;
   const stay = STAYS.find((s) => s.id === selectedStayId)!;
-  const totalCost = flight.price + stay.price * days + 25 * days;
+
+  // Calculate cost of selected activities
+  const allOptions = Object.values(DISCOVERY_DATA).flatMap((cat) =>
+    Object.values(cat).flatMap((arr) => arr),
+  );
+  const placesCost = selectedPlaces.reduce((acc, id) => {
+    const option = allOptions.find((o) => o.id === id);
+    return acc + (option?.price || 0);
+  }, 0);
+
+  const totalCost = flight.price + stay.price * days + placesCost;
   const isOverBudget = totalCost > budget;
   const diff = Math.abs(budget - totalCost);
   const progressPercent = Math.min((totalCost / budget) * 100, 100);
@@ -263,9 +273,16 @@ function TripResultContent() {
                                         <h4 className="font-bold text-[16px] leading-tight text-black">
                                           {option.name}
                                         </h4>
-                                        <p className="text-[13px] text-black/40 font-medium mt-1">
-                                          {option.vibe}
-                                        </p>
+                                        <div className="flex items-center gap-2 mt-1">
+                                          <p className="text-[13px] text-black/40 font-medium">
+                                            {option.vibe}
+                                          </p>
+                                          <span className="text-[12px] font-black text-[#8E7AF6] bg-[#8E7AF6]/10 px-2 py-0.5 rounded-md">
+                                            {option.price > 0
+                                              ? `~€${option.price}`
+                                              : "Free"}
+                                          </span>
+                                        </div>
                                       </div>
                                       <div
                                         onClick={() => togglePlace(option.id)}
@@ -523,36 +540,59 @@ const DISCOVERY_DATA = {
         name: "Federal Café",
         vibe: "Great coffee",
         dist: "200m away",
+        price: 15,
       },
       {
         id: "b2",
         name: "Milk Bar",
         vibe: "Budget friendly",
         dist: "350m away",
+        price: 12,
       },
       {
         id: "b3",
         name: "Caravelle",
         vibe: "Tex-Mex fusion",
         dist: "500m away",
+        price: 18,
       },
-      { id: "b4", name: "Tropico", vibe: "Exotic fruits", dist: "600m away" },
+      {
+        id: "b4",
+        name: "Tropico",
+        vibe: "Exotic fruits",
+        dist: "600m away",
+        price: 20,
+      },
     ],
     s2: [
-      { id: "b5", name: "EatMyTrip", vibe: "Fancy waffles", dist: "400m away" },
+      {
+        id: "b5",
+        name: "EatMyTrip",
+        vibe: "Fancy waffles",
+        dist: "400m away",
+        price: 22,
+      },
       {
         id: "b6",
         name: "Brunch & Cake",
         vibe: "Healthy options",
         dist: "150m away",
+        price: 18,
       },
       {
         id: "b7",
         name: "Billy Brunch",
         vibe: "Cozy atmosphere",
         dist: "300m away",
+        price: 15,
       },
-      { id: "b8", name: "Ugot", vibe: "Vintage cakes", dist: "450m away" },
+      {
+        id: "b8",
+        name: "Ugot",
+        vibe: "Vintage cakes",
+        dist: "450m away",
+        price: 10,
+      },
     ],
   },
   walking: {
@@ -562,24 +602,28 @@ const DISCOVERY_DATA = {
         name: "Gothic Quarter",
         vibe: "History & Mystery",
         dist: "2km walk",
+        price: 0,
       },
       {
         id: "w2",
         name: "Port Vell",
         vibe: "Seafront stroll",
         dist: "1 km walk",
+        price: 0,
       },
       {
         id: "w3",
         name: "El Born",
         vibe: "Bohemian vibes",
         dist: "600m walk",
+        price: 0,
       },
       {
         id: "w4",
         name: "Ciutadella Park",
         vibe: "Green oasis",
         dist: "900m walk",
+        price: 0,
       },
     ],
     s2: [
@@ -588,24 +632,28 @@ const DISCOVERY_DATA = {
         name: "Modernisme Route",
         vibe: "Gaudi Architecture",
         dist: "1.5km walk",
+        price: 0,
       },
       {
         id: "w6",
         name: "Raval Art",
         vibe: "Urban street art",
         dist: "300m walk",
+        price: 0,
       },
       {
         id: "w7",
         name: "Passeig de Gràcia",
         vibe: "Luxury shopping",
         dist: "100m walk",
+        price: 0,
       },
       {
         id: "w8",
         name: "Plaza Catalunya",
         vibe: "City center hub",
         dist: "400m walk",
+        price: 0,
       },
     ],
   },
@@ -616,19 +664,28 @@ const DISCOVERY_DATA = {
         name: "Sagrada Família",
         vibe: "Masterpiece",
         dist: "Metro 12m",
+        price: 26,
       },
-      { id: "t2", name: "Park Güell", vibe: "Mosaic gardens", dist: "Bus 20m" },
+      {
+        id: "t2",
+        name: "Park Güell",
+        vibe: "Mosaic gardens",
+        dist: "Bus 20m",
+        price: 10,
+      },
       {
         id: "t3",
         name: "Picasso Museum",
         vibe: "Art history",
         dist: "Walk 15m",
+        price: 15,
       },
       {
         id: "t4",
         name: "Barceloneta Beach",
         vibe: "Sunny vibes",
         dist: "Walk 20m",
+        price: 0,
       },
     ],
     s2: [
@@ -637,14 +694,28 @@ const DISCOVERY_DATA = {
         name: "Sagrada Família",
         vibe: "Masterpiece",
         dist: "Metro 8m",
+        price: 26,
       },
-      { id: "t6", name: "Casa Batlló", vibe: "Dragon house", dist: "Walk 5m" },
-      { id: "t7", name: "La Pedrera", vibe: "Quarry facade", dist: "Walk 10m" },
+      {
+        id: "t6",
+        name: "Casa Batlló",
+        vibe: "Dragon house",
+        dist: "Walk 5m",
+        price: 35,
+      },
+      {
+        id: "t7",
+        name: "La Pedrera",
+        vibe: "Quarry facade",
+        dist: "Walk 10m",
+        price: 25,
+      },
       {
         id: "t8",
         name: "Magic Fountain",
         vibe: "Light show",
         dist: "Metro 15m",
+        price: 0,
       },
     ],
   },
@@ -655,24 +726,28 @@ const DISCOVERY_DATA = {
         name: "Bunkers del Carmel",
         vibe: "Best 360° views",
         dist: "Bus 25m",
+        price: 0,
       },
       {
         id: "h2",
         name: "Tibidabo",
         vibe: "Theme park & views",
         dist: "Bus 40m",
+        price: 0,
       },
       {
         id: "h3",
         name: "Collserola Park",
         vibe: "Nature trails",
         dist: "Train 30m",
+        price: 0,
       },
       {
         id: "h4",
         name: "Carretera de les Aigües",
         vibe: "Flat walking path",
         dist: "Train 25m",
+        price: 0,
       },
     ],
     s2: [
@@ -681,24 +756,28 @@ const DISCOVERY_DATA = {
         name: "Montjuïc Castle",
         vibe: "Sea views",
         dist: "Metro 15m",
+        price: 9,
       },
       {
         id: "h6",
         name: "Olympic Stadium",
         vibe: "Sports history",
         dist: "Metro 18m",
+        price: 0,
       },
       {
         id: "h7",
         name: "Botanical Gardens",
         vibe: "Diverse flora",
         dist: "Bus 20m",
+        price: 5,
       },
       {
         id: "h8",
         name: "Mirador de l'Alcalde",
         vibe: "Port views",
         dist: "Metro 15m",
+        price: 0,
       },
     ],
   },
