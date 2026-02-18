@@ -3,7 +3,12 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { getTripById, deleteTrip, type Trip } from "@/lib/tripsStore";
+import {
+  getTripById,
+  deleteTrip,
+  updateTrip,
+  type Trip,
+} from "@/lib/tripsStore";
 
 // Re-using constants from result page for lookup purposes
 // (In a real app, these would come from a database or API)
@@ -286,14 +291,25 @@ export default function TripDetailsPage() {
   const [trip, setTrip] = useState<Trip | null>(null);
   const [loading, setLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showNotesModal, setShowNotesModal] = useState(false);
+  const [noteContent, setNoteContent] = useState("");
 
   useEffect(() => {
     if (params.id) {
       const foundTrip = getTripById(params.id as string);
       setTrip(foundTrip || null);
+      if (foundTrip?.notes) setNoteContent(foundTrip.notes);
     }
     setLoading(false);
   }, [params.id]);
+
+  const handleSaveNotes = () => {
+    if (!trip) return;
+    const updatedTrip = { ...trip, notes: noteContent };
+    updateTrip(updatedTrip);
+    setTrip(updatedTrip);
+    setShowNotesModal(false);
+  };
 
   if (loading) return <div className="min-h-screen bg-[#FAFAFA]" />;
 
@@ -557,8 +573,19 @@ export default function TripDetailsPage() {
           </div>
         </section>
 
-        {/* --- Delete Trip Action --- */}
-        <div className="pt-8 pb-4">
+        {/* --- Notes Action --- */}
+        <div className="pt-8 pb-4 space-y-3">
+          <button
+            onClick={() => {
+              setNoteContent(trip.notes || "");
+              setShowNotesModal(true);
+            }}
+            className="w-full flex items-center justify-center gap-2 p-4 text-[#8E7AF6] font-bold bg-[#8E7AF6]/10 rounded-[20px] active:scale-95 transition-all"
+          >
+            <DocumentTextIcon className="h-5 w-5" />
+            {trip.notes ? "Edit Trip Notes" : "Add Trip Notes"}
+          </button>
+
           <button
             onClick={() => setShowDeleteModal(true)}
             className="w-full flex items-center justify-center gap-2 p-4 text-[#FF3B30] font-bold bg-[#FF3B30]/5 rounded-[20px] active:scale-95 transition-all"
@@ -568,6 +595,58 @@ export default function TripDetailsPage() {
           </button>
         </div>
       </div>
+
+      {/* --- Notes Modal --- */}
+      <AnimatePresence>
+        {showNotesModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center px-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              onClick={() => setShowNotesModal(false)}
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white w-full max-w-sm p-6 rounded-[32px] shadow-2xl relative z-10 space-y-4"
+            >
+              <div className="flex justify-between items-center mb-2">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-[#8E7AF6]/10 text-[#8E7AF6] flex items-center justify-center">
+                    <DocumentTextIcon className="h-5 w-5" />
+                  </div>
+                  <h3 className="text-xl font-bold text-black">Trip Notes</h3>
+                </div>
+                <button
+                  onClick={() => setShowNotesModal(false)}
+                  className="h-8 w-8 rounded-full bg-black/5 flex items-center justify-center text-black/40"
+                >
+                  <XIcon className="h-4 w-4" />
+                </button>
+              </div>
+
+              <textarea
+                value={noteContent}
+                onChange={(e) => setNoteContent(e.target.value)}
+                placeholder="Write down ideas, packing lists, or reminders..."
+                className="w-full h-40 p-4 bg-gray-50 rounded-[20px] text-[15px] font-medium text-black placeholder:text-black/30 outline-none border border-transparent focus:border-[#8E7AF6]/30 focus:bg-white transition-all resize-none"
+              />
+
+              <div className="pt-2">
+                <button
+                  onClick={handleSaveNotes}
+                  className="w-full py-4 rounded-[20px] font-black text-white bg-[#8E7AF6] shadow-lg shadow-[#8E7AF6]/30 active:scale-95 transition-all"
+                >
+                  Save Notes
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* --- Delete Confirmation Modal --- */}
       <AnimatePresence>
@@ -590,7 +669,9 @@ export default function TripDetailsPage() {
                 <TrashIcon className="h-6 w-6" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-black">Delete this trip?</h3>
+                <h3 className="text-xl font-bold text-black">
+                  Delete this trip?
+                </h3>
                 <p className="text-[15px] font-medium text-black/40 mt-1">
                   This action cannot be undone.
                 </p>
@@ -635,6 +716,42 @@ function UserIcon() {
         strokeLinecap="round"
         strokeLinejoin="round"
         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+      />
+    </svg>
+  );
+}
+
+function DocumentTextIcon(p: any) {
+  return (
+    <svg
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+      {...p}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+      />
+    </svg>
+  );
+}
+
+function XIcon(p: any) {
+  return (
+    <svg
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2.5}
+      {...p}
+    >
+      <path
+        d="M6 18L18 6M6 6l12 12"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );

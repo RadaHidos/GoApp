@@ -27,6 +27,7 @@ export interface Trip {
     image: string;
   };
   selectedPlaces: string[]; // Store IDs of selected places
+  notes?: string;
 }
 
 const STORAGE_KEY = "go_saved_trips";
@@ -46,6 +47,16 @@ export const saveTrip = (trip: Trip): Trip[] => {
   if (typeof window === "undefined") return [];
   const trips = getTrips();
   const newTrips = [trip, ...trips];
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(newTrips));
+  return newTrips;
+};
+
+export const updateTrip = (updatedTrip: Trip): Trip[] => {
+  if (typeof window === "undefined") return [];
+  const trips = getTrips();
+  const newTrips = trips.map((t) =>
+    t.id === updatedTrip.id ? updatedTrip : t,
+  );
   localStorage.setItem(STORAGE_KEY, JSON.stringify(newTrips));
   return newTrips;
 };
