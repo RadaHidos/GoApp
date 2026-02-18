@@ -20,19 +20,19 @@ export default function AuthPage() {
     },
   };
 
-  // Find this inside your AuthPage function:
-const itemVariants: Variants = { 
-  hidden: { opacity: 0, y: 12 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { 
-      type: "spring", // This is the part that was causing the error
-      stiffness: 100, 
-      damping: 15 
+  // Around line 25 in app/auth/page.tsx
+  const itemVariants = {
+    hidden: { opacity: 0, y: 12 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring" as const, // <--- Add 'as const' here
+        stiffness: 100,
+        damping: 15,
+      },
     },
-  },
-};
+  };
 
   return (
     <main className="min-h-screen w-full bg-[#FAFAFA] text-[#1D1D1F]">
