@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion"; // <-- Add Variants here
 import { ReactNode } from "react";
 
 const easeOut = [0.22, 1, 0.36, 1] as const;
@@ -20,14 +20,19 @@ export default function AuthPage() {
     },
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 12 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6, ease: easeOut },
+  // Find this inside your AuthPage function:
+const itemVariants: Variants = { 
+  hidden: { opacity: 0, y: 12 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { 
+      type: "spring", // This is the part that was causing the error
+      stiffness: 100, 
+      damping: 15 
     },
-  };
+  },
+};
 
   return (
     <main className="min-h-screen w-full bg-[#FAFAFA] text-[#1D1D1F]">
