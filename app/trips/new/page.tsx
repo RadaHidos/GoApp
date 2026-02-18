@@ -91,7 +91,9 @@ export default function NewTripPage() {
                 max="1500"
                 value={budget}
                 onChange={(e) => setBudget(Number(e.target.value))}
-                className="w-full h-1.5 bg-[#8E7AF6]/10 rounded-full appearance-none cursor-pointer accent-[#8E7AF6] touch-none"
+                className="w-full h-1.5 bg-[#8E7AF6]/10 rounded-full appearance-none cursor-pointer touch-none
+                [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-10 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-[20px] [&::-webkit-slider-thumb]:bg-[#8E7AF6]  [&::-webkit-slider-thumb]:shadow-md
+                [&::-moz-range-thumb]:w-10 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:rounded-[20px] [&::-moz-range-thumb]:bg-[#8E7AF6]  [&::-moz-range-thumb]:shadow-md"
               />
             </div>
             <div className="space-y-4">
@@ -109,7 +111,9 @@ export default function NewTripPage() {
                 max="14"
                 value={days}
                 onChange={(e) => setDays(Number(e.target.value))}
-                className="w-full h-1.5 bg-[#8E7AF6]/10 rounded-full appearance-none cursor-pointer accent-[#8E7AF6] touch-none"
+                className="w-full h-1.5 bg-[#8E7AF6]/10 rounded-full appearance-none cursor-pointer touch-none
+                [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-10 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-[20px] [&::-webkit-slider-thumb]:bg-[#8E7AF6]  [&::-webkit-slider-thumb]:shadow-md
+                [&::-moz-range-thumb]:w-10 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:rounded-[20px] [&::-moz-range-thumb]:bg-[#8E7AF6]  [&::-moz-range-thumb]:shadow-md"
               />
             </div>
           </section>
@@ -117,20 +121,23 @@ export default function NewTripPage() {
           {/* 2. Destination with Autocomplete */}
           <section className="space-y-4">
             <label className="text-[11px] font-black uppercase tracking-widest text-black/30 ml-2">
-              Where to?
+              From?
             </label>
             <div className="space-y-3 relative">
               <AutocompleteInput
                 value={departure}
                 setValue={setDeparture}
                 placeholder="Departure: Amsterdam"
-                icon={<MapPinIcon className="h-5 w-5" />}
+                icon={<SearchIcon className="h-5 w-5" />}
               />
+              <label className="text-[11px] font-black uppercase tracking-widest text-black/30 ml-2">
+                Where to?
+              </label>
               <AutocompleteInput
                 value={destination}
                 setValue={setDestination}
                 placeholder="Destination: AI Surprise Me"
-                icon={<SearchIcon className="h-5 w-5" />}
+                icon={<MapPinIcon className="h-5 w-5" />}
               />
             </div>
           </section>
