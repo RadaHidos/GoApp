@@ -149,6 +149,25 @@ function TripResultContent() {
                 />
               </div>
             </div>
+
+            {isOverBudget && (
+              <div className="mt-8 pt-6 border-t border-white/10 flex items-center justify-between">
+                <div>
+                  <h3 className="font-bold text-[16px] text-white">
+                    Over the limit
+                  </h3>
+                  <p className="text-[13px] text-white/40 font-medium max-w-[140px] leading-tight mt-1">
+                    Adjust choices or increase budget
+                  </p>
+                </div>
+                <button
+                  onClick={() => router.push("/trips/new")}
+                  className="bg-white text-black px-6 py-3 rounded-[16px] font-black text-[13px] shadow-lg active:scale-95 transition-transform"
+                >
+                  Edit <br /> Budget
+                </button>
+              </div>
+            )}
           </div>
           <div
             className={`absolute -right-20 -top-20 w-64 h-64 blur-[100px] rounded-full opacity-20 ${isOverBudget ? "bg-red-500" : "bg-[#8E7AF6]"}`}
@@ -277,7 +296,7 @@ function TripResultContent() {
                                           <p className="text-[13px] text-black/40 font-medium">
                                             {option.vibe}
                                           </p>
-                                          <span className="text-[12px] font-black text-[#8E7AF6] bg-[#8E7AF6]/10 px-2 py-0.5 rounded-md">
+                                          <span className="text-[12px] font-black tracking-tighter text-[#8E7AF6] bg-[#8E7AF6]/10 px-2 py-0.5 rounded-md">
                                             {option.price > 0
                                               ? `~€${option.price}`
                                               : "Free"}
@@ -363,9 +382,11 @@ function SelectCard({
         <h4 className="font-bold text-[16px]">{title}</h4>
         <p className="text-[13px] font-medium text-black/40">{subtitle}</p>
       </div>
-      <div className="text-right font-black font-mono tracking-tight">
-        <p className="text-[18px]">{price}</p>
-        <p className="text-[11px] text-black/20 uppercase">{tag}</p>
+      <div className="text-right">
+        <p className="font-black tracking-tighter text-[18px]">{price}</p>
+        <p className="text-[11px] font-bold text-black/20 uppercase tracking-wide">
+          {tag}
+        </p>
       </div>
     </motion.div>
   );
