@@ -68,12 +68,14 @@ function TripResultContent() {
       id: crypto.randomUUID(),
       createdAt: new Date().toISOString(),
       destination,
-      departure: searchParams.get("departure") || "Amsterdam", 
+      departure: searchParams.get("departure") || "Amsterdam",
       days,
       budget,
       people: Number(searchParams.get("people")) || 2,
       isCouple: searchParams.get("isCouple") === "true",
-      vibes: searchParams.get("vibes") ? searchParams.get("vibes")!.split(",") : [],
+      vibes: searchParams.get("vibes")
+        ? searchParams.get("vibes")!.split(",")
+        : [],
       totalCost,
       savings: isOverBudget ? 0 : diff,
       isOverBudget,
@@ -367,6 +369,11 @@ function TripResultContent() {
                                     </div>
                                   </motion.div>
                                 ))}
+
+                                <button className="w-full py-4 rounded-[24px] border border-dashed border-[#8E7AF6]/40 text-[#8E7AF6] font-bold text-[13px] bg-[#8E7AF6]/5 hover:bg-[#8E7AF6]/10 active:scale-95 transition-all flex items-center justify-center gap-2 mt-2">
+                                  <SparklesIcon className="h-4 w-4" />
+                                  Not your vibe? Ask AI for more options
+                                </button>
                               </div>
                             </motion.div>
                           )}
@@ -384,9 +391,10 @@ function TripResultContent() {
       {/* Primary Action Footer */}
       <div className="w-full max-w-[430px] px-6 mt-10 mb-[100px] pointer-events-none">
         <div className="pointer-events-auto">
-          <button 
+          <button
             onClick={handleSaveTrip}
-            className="w-full bg-[#1D1D1F] text-white font-black h-16 rounded-[24px] shadow-2xl flex items-center justify-center gap-2 active:scale-95 transition-all">
+            className="w-full bg-[#1D1D1F] text-white font-black h-16 rounded-[24px] shadow-2xl flex items-center justify-center gap-2 active:scale-95 transition-all"
+          >
             Save Adventure
           </button>
         </div>
@@ -534,6 +542,24 @@ function CalendarIcon(p: any) {
       {...p}
     >
       <path d="M8 7V3m8 4V3m-9 8h10M5 21h14" />
+    </svg>
+  );
+}
+
+function SparklesIcon(p: any) {
+  return (
+    <svg
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+      {...p}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+      />
     </svg>
   );
 }
