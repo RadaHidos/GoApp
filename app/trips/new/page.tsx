@@ -62,7 +62,7 @@ export default function NewTripPage() {
             Plan Adventure
           </span>
           <button
-            onClick={() => setBudget(300)}
+            onClick={() => (setBudget(300), setDays(3))}
             className="text-[14px] font-bold text-[#8E7AF6]"
           >
             Reset
@@ -89,12 +89,34 @@ export default function NewTripPage() {
                 type="range"
                 min="50"
                 max="1500"
-                value={budget}
+                value={Math.min(budget, 1500)}
                 onChange={(e) => setBudget(Number(e.target.value))}
                 className="w-full h-1.5 bg-[#8E7AF6]/10 rounded-full appearance-none cursor-pointer touch-none
                 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-10 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-[20px] [&::-webkit-slider-thumb]:bg-[#8E7AF6]  [&::-webkit-slider-thumb]:shadow-md
                 [&::-moz-range-thumb]:w-10 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:rounded-[20px] [&::-moz-range-thumb]:bg-[#8E7AF6]  [&::-moz-range-thumb]:shadow-md"
               />
+              <AnimatePresence>
+                {budget >= 1500 && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                     <div className="pt-4">
+                      <label className="text-[11px] font-black uppercase tracking-widest text-black/30 mb-2 block">
+                        Need a bigger budget?
+                      </label>
+                      <input
+                        type="number"
+                        value={budget}
+                        onChange={(e) => setBudget(Number(e.target.value))}
+                        className="w-full bg-gray-50 h-12 px-4 rounded-[16px] font-bold text-[16px] border border-black/5 focus:ring-2 focus:ring-[#8E7AF6]/20 outline-none transition-all text-[#8E7AF6]"
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
             <div className="space-y-4">
               <div className="flex justify-between items-end">
@@ -109,12 +131,34 @@ export default function NewTripPage() {
                 type="range"
                 min="1"
                 max="14"
-                value={days}
+                value={Math.min(days, 14)}
                 onChange={(e) => setDays(Number(e.target.value))}
                 className="w-full h-1.5 bg-[#8E7AF6]/10 rounded-full appearance-none cursor-pointer touch-none
                 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-10 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-[20px] [&::-webkit-slider-thumb]:bg-[#8E7AF6]  [&::-webkit-slider-thumb]:shadow-md
                 [&::-moz-range-thumb]:w-10 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:rounded-[20px] [&::-moz-range-thumb]:bg-[#8E7AF6]  [&::-moz-range-thumb]:shadow-md"
               />
+              <AnimatePresence>
+                {days >= 14 && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="pt-4">
+                      <label className="text-[11px] font-black uppercase tracking-widest text-black/30 mb-2 block">
+                        Need more days?
+                      </label>
+                      <input
+                        type="number"
+                        value={days}
+                        onChange={(e) => setDays(Number(e.target.value))}
+                        className="w-full bg-gray-50 h-12 px-4 rounded-[16px] font-bold text-[16px] border border-black/5 focus:ring-2 focus:ring-[#8E7AF6]/20 outline-none transition-all text-[#8E7AF6]"
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </section>
 
