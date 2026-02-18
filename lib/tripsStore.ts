@@ -28,6 +28,8 @@ export interface Trip {
   };
   selectedPlaces: string[]; // Store IDs of selected places
   notes?: string;
+  placeNotes?: Record<string, string>; // Store notes for each place by ID
+  placeRatings?: Record<string, number>; // Store ratings (1-5) for each place by ID
 }
 
 const STORAGE_KEY = "go_saved_trips";

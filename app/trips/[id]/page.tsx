@@ -9,9 +9,11 @@ import {
   updateTrip,
   type Trip,
 } from "@/lib/tripsStore";
+import LiquidTabBar from "@/components/LiquidTabBar";
 
-// Re-using constants from result page for lookup purposes
-// (In a real app, these would come from a database or API)
+const easeOut = [0.22, 1, 0.36, 1] as const;
+
+// --- Constants for data lookup ---
 const ITINERARY = [
   {
     id: "brunch",
@@ -294,6 +296,10 @@ export default function TripDetailsPage() {
   const [showNotesModal, setShowNotesModal] = useState(false);
   const [noteContent, setNoteContent] = useState("");
 
+  const [editingPlaceId, setEditingPlaceId] = useState<string | null>(null);
+  const [placeNoteContent, setPlaceNoteContent] = useState("");
+  const [placeRatingValue, setPlaceRatingValue] = useState(0);
+
   useEffect(() => {
     if (params.id) {
       const foundTrip = getTripById(params.id as string);
@@ -311,11 +317,40 @@ export default function TripDetailsPage() {
     setShowNotesModal(false);
   };
 
+  const openPlaceModal = (placeId: string) => {
+    if (!trip) return;
+    setEditingPlaceId(placeId);
+    setPlaceNoteContent(trip.placeNotes?.[placeId] || "");
+    setPlaceRatingValue(trip.placeRatings?.[placeId] || 0);
+  };
+
+  const handleSavePlaceDetails = () => {
+    if (!trip || !editingPlaceId) return;
+    const updatedTrip = {
+      ...trip,
+      placeNotes: {
+        ...(trip.placeNotes || {}),
+        [editingPlaceId]: placeNoteContent,
+      },
+      placeRatings: {
+        ...(trip.placeRatings || {}),
+        [editingPlaceId]: placeRatingValue,
+      },
+    };
+    if (!placeNoteContent.trim())
+      delete updatedTrip.placeNotes![editingPlaceId];
+    if (placeRatingValue === 0)
+      delete updatedTrip.placeRatings![editingPlaceId];
+    updateTrip(updatedTrip);
+    setTrip(updatedTrip);
+    setEditingPlaceId(null);
+  };
+
   if (loading) return <div className="min-h-screen bg-[#FAFAFA]" />;
 
   if (!trip) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center text-black">
         <h2 className="text-xl font-bold mb-2">Trip not found</h2>
         <button
           onClick={() => router.push("/trips")}
@@ -327,14 +362,12 @@ export default function TripDetailsPage() {
     );
   }
 
-  // Lookup selected places (simple version reusing constant data)
-  // In a real app we'd probably have saved the full object in the trip
   const allOptions = Object.values(DISCOVERY_DATA).flatMap((cat: any) =>
     Object.values(cat).flatMap((arr: any) => arr),
   );
 
   return (
-    <main className="min-h-screen w-full bg-[#FAFAFA] text-[#1D1D1F] flex flex-col items-center font-sans pb-10">
+    <main className="min-h-screen w-full bg-[#FAFAFA] text-[#1D1D1F] flex flex-col items-center font-sans pb-[140px]">
       <header className="sticky top-0 z-50 w-full max-w-[430px] bg-[#FAFAFA]/80 backdrop-blur-xl px-6 py-4 flex items-center justify-between border-b border-black/5">
         <button
           onClick={() => router.push("/trips")}
@@ -354,11 +387,11 @@ export default function TripDetailsPage() {
       </header>
 
       <div className="w-full max-w-[430px] px-6 mt-6 space-y-8">
-        {/* --- Budget Hero (Read Only) --- */}
+        {/* Budget Hero Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className={`p-8 rounded-[36px] shadow-2xl relative overflow-hidden ${trip.isOverBudget ? "bg-red-950" : "bg-[#1D1D1F]"} text-white`}
+          className={`p-8 rounded-[36px] shadow-2xl relative overflow-hidden ${trip.isOverBudget ? "bg-[#2D0A0A]" : "bg-[#0B0C0F]"} text-white`}
         >
           <div className="relative z-10">
             <div className="flex justify-between items-start mb-6">
@@ -366,19 +399,18 @@ export default function TripDetailsPage() {
                 <p className="text-[12px] font-bold text-white/40 uppercase tracking-widest">
                   Total Cost
                 </p>
-                <h2 className="text-[48px] font-black tracking-tighter">
+                <h2
+                  className={`text-[48px] font-black tracking-tighter ${trip.isOverBudget ? "text-red-400" : "text-white"}`}
+                >
                   €{Math.round(trip.totalCost)}
                 </h2>
               </div>
-              <div className="flex flex-col items-end gap-2">
-                <div
-                  className={`px-4 py-2 rounded-2xl text-[13px] font-black shadow-lg ${trip.isOverBudget ? "bg-red-500" : "bg-[#8E7AF6]"}`}
-                >
-                  €{trip.budget} Budget
-                </div>
+              <div
+                className={`px-4 py-2 rounded-2xl text-[13px] font-black shadow-lg ${trip.isOverBudget ? "bg-red-500" : "bg-[#8E7AF6]"}`}
+              >
+                €{trip.budget} Budget
               </div>
             </div>
-
             <div className="space-y-3">
               <div className="flex justify-between items-end">
                 <span className="text-[13px] font-bold text-white/60">
@@ -390,123 +422,71 @@ export default function TripDetailsPage() {
                   {Math.round(trip.progressPercent)}%
                 </span>
               </div>
-              <div className="h-2.5 w-full bg-white/10 rounded-full overflow-hidden">
+              <div className="h-2.5 w-full bg-white/10 rounded-full overflow-hidden p-[2px]">
                 <div
                   style={{ width: `${trip.progressPercent}%` }}
-                  className={`h-full rounded-full ${trip.isOverBudget ? "bg-red-500" : "bg-[#8E7AF6] shadow-[0_0_15px_rgba(142,122,246,0.5)]"}`}
+                  className={`h-full rounded-full ${trip.isOverBudget ? "bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)]" : "bg-[#8E7AF6] shadow-[0_0_15px_rgba(142,122,246,0.5)]"}`}
                 />
               </div>
             </div>
           </div>
+          <div
+            className={`absolute -right-20 -top-20 w-64 h-64 blur-[100px] rounded-full opacity-10 ${trip.isOverBudget ? "bg-red-500" : "bg-[#8E7AF6]"}`}
+          />
         </motion.div>
 
-        {/* --- Trip Overview (Travelers & Vibes) --- */}
-        <section className="grid grid-cols-2 gap-4">
-          <div className="p-5 rounded-[24px] bg-white border border-black/5 shadow-sm space-y-2">
-            <h4 className="text-[11px] font-black uppercase tracking-widest text-black/30">
-              Travelers
-            </h4>
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-full bg-[#8E7AF6]/10 flex items-center justify-center text-[#8E7AF6]">
-                <UserIcon />
-              </div>
-              <span className="text-[15px] font-bold text-black">
-                {trip.people} {trip.people === 1 ? "Person" : "People"}
-              </span>
-            </div>
-          </div>
-
-          <div className="p-5 rounded-[24px] bg-white border border-black/5 shadow-sm space-y-2">
-            <h4 className="text-[11px] font-black uppercase tracking-widest text-black/30">
-              Vibe
-            </h4>
-            <div className="flex flex-wrap gap-1">
-              {trip.vibes?.slice(0, 2).map((v) => (
-                <span
-                  key={v}
-                  className="px-2 py-1 rounded-md bg-[#8E7AF6]/10 text-[#8E7AF6] text-[10px] font-bold"
-                >
-                  {v}
-                </span>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Selected Flight & Stay */}
-        <section className="space-y-5">
-          <h3 className="text-[20px] font-bold px-1">Your Selections</h3>
+        {/* Selected Logistics */}
+        <section className="space-y-4">
+          <h3 className="text-[20px] font-bold px-1 text-black">Logistics</h3>
           <div className="space-y-3">
-            <div className="p-5 rounded-[28px] bg-white border border-[#8E7AF6] shadow-xl flex items-center gap-4">
-              <div className="h-14 w-14 rounded-2xl bg-[#8E7AF6]/10 flex items-center justify-center shrink-0">
+            <div className="p-5 rounded-[28px] bg-white border border-black/[0.03] shadow-sm flex items-center gap-4">
+              <div className="h-12 w-12 rounded-xl bg-[#8E7AF6]/10 flex items-center justify-center shrink-0">
                 <PlaneIcon className="h-6 w-6 text-[#8E7AF6]" />
               </div>
-              <div className="flex-1">
-                <h4 className="font-bold text-[16px]">
+              <div className="flex-1 min-w-0">
+                <h4 className="font-bold text-[15px] truncate text-black">
                   {trip.selectedFlight.airline}
                 </h4>
                 <p className="text-[13px] font-medium text-black/40">
                   {trip.selectedFlight.time}
                 </p>
               </div>
-              <div className="text-right">
-                <p className="font-black tracking-tighter text-[18px]">
-                  €{trip.selectedFlight.price}
-                </p>
-                <p className="text-[11px] font-bold text-black/20 uppercase tracking-wide">
-                  {trip.selectedFlight.stops}
-                </p>
-              </div>
+              <p className="font-black text-[17px] text-black">
+                €{trip.selectedFlight.price}
+              </p>
             </div>
-
-            <div className="p-5 rounded-[28px] bg-white border border-[#8E7AF6] shadow-xl flex items-center gap-4">
-              {trip.selectedStay.image && (
+            <div className="p-5 rounded-[28px] bg-white border border-black/[0.03] shadow-sm flex items-center gap-4">
+              {trip.selectedStay.image ? (
                 <div
-                  className={`h-14 w-14 rounded-2xl ${trip.selectedStay.image} shrink-0 shadow-inner`}
+                  className={`h-12 w-12 rounded-xl ${trip.selectedStay.image} shrink-0 shadow-inner`}
                 />
+              ) : (
+                <div className="h-12 w-12 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
+                  <BedIcon className="h-6 w-6 text-orange-400" />
+                </div>
               )}
-              <div className="flex-1">
-                <h4 className="font-bold text-[16px]">
+              <div className="flex-1 min-w-0">
+                <h4 className="font-bold text-[15px] truncate text-black">
                   {trip.selectedStay.name}
                 </h4>
                 <p className="text-[13px] font-medium text-black/40">
                   {trip.selectedStay.distance}
                 </p>
               </div>
-              <div className="text-right">
-                <p className="font-black tracking-tighter text-[18px]">
-                  €{trip.selectedStay.price}
-                </p>
-                <p className="text-[11px] font-bold text-black/20 uppercase tracking-wide">
-                  /night
-                </p>
-              </div>
+              <p className="font-black text-[17px] text-black">
+                €{trip.selectedStay.price}
+              </p>
             </div>
           </div>
         </section>
 
-        {/* Itinerary Timeline */}
+        {/* --- Itinerary Section (UPDATED CARD DESIGN) --- */}
         <section className="space-y-6">
-          <h3 className="text-[20px] font-bold px-1">Your Itinerary</h3>
-          <div className="relative pl-6 border-l-2 border-[#8E7AF6]/20 ml-4 space-y-12 pb-10">
+          <h3 className="text-[20px] font-bold px-1 text-black">
+            Your Itinerary
+          </h3>
+          <div className="relative pl-6 border-l-2 border-[#8E7AF6]/20 ml-4 space-y-12">
             {ITINERARY.map((item, i) => {
-              // Find selected places for this item
-              const options =
-                DISCOVERY_DATA[item.id as keyof typeof DISCOVERY_DATA]?.[
-                  // We need to use the selectedStay.id from the trip but mapped to s1/s2 if possible,
-                  // OR simplify lookup. Ideally we saved the FULL object
-                  // For this simpler version, we assume 's1'/'s2' mapping still holds.
-                  // Since we only saved selectedPlaces IDs, let's find if any selected place belongs to this activity category
-                  // This is a bit hacky because we don't know which stay ID maps to which set easily without the original logic
-                  // BUT we can just search all selectedPlaces and see if any match the options available for this item
-                  Object.keys(
-                    DISCOVERY_DATA[item.id as keyof typeof DISCOVERY_DATA] ||
-                      {},
-                  )[0]
-                  // Just grabbing any options list to find the item detials, assuming IDs are unique globally
-                ];
-
-              // Find ALL selected places for this item, not just one.
               const allItemOptions = Object.values(
                 DISCOVERY_DATA[item.id as keyof typeof DISCOVERY_DATA] || {},
               ).flatMap((a: any) => a);
@@ -525,47 +505,75 @@ export default function TripDetailsPage() {
                       <span className="text-[11px] font-black uppercase tracking-widest text-black/30">
                         Day {item.day} • {item.period}
                       </span>
-                      <p className="text-[17px] font-bold text-black">
+                      <p className="text-[17px] font-bold text-black leading-tight">
                         {item.activity}
                       </p>
                     </div>
 
-                    {selectedPlacesForItem.length > 0 &&
-                      selectedPlacesForItem.map((place: any, index: number) => (
+                    {selectedPlacesForItem.map((place: any) => {
+                      const hasNote = !!trip.placeNotes?.[place.id];
+                      const rating = trip.placeRatings?.[place.id] || 0;
+
+                      return (
                         <div
                           key={place.id}
-                          className="p-4 rounded-[24px] bg-white border border-[#8E7AF6] shadow-sm"
+                          className="p-5 rounded-[28px] bg-white border border-[#8E7AF6]/30 shadow-xl shadow-[#8E7AF6]/5 space-y-4"
                         >
-                          <div className="flex justify-between items-start mb-2">
-                            <div>
-                              <h4 className="font-bold text-[16px] leading-tight text-black">
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1 min-w-0 pr-4">
+                              <h4 className="font-bold text-[16px] text-black truncate mb-1">
                                 {place.name}
                               </h4>
-                              <div className="flex items-center gap-2 mt-1">
-                                <p className="text-[13px] text-black/40 font-medium">
-                                  {place.vibe}
-                                </p>
-                                <span className="text-[12px] font-black tracking-tighter text-[#8E7AF6] bg-[#8E7AF6]/10 px-2 py-0.5 rounded-md">
-                                  {place.price > 0 ? `€${place.price}` : "Free"}
-                                </span>
-                              </div>
+                              <p className="text-[13px] text-black/40 font-medium leading-relaxed">
+                                {place.vibe}
+                              </p>
                             </div>
-                            <div className="h-6 w-6 rounded-full bg-[#8E7AF6] flex items-center justify-center">
-                              <CheckIcon />
+                            <div className="text-right shrink-0">
+                              <span className="text-[11px] font-black uppercase tracking-widest text-[#8E7AF6] bg-[#8E7AF6]/5 px-2 py-1 rounded-md">
+                                {place.price > 0 ? `€${place.price}` : "Free"}
+                              </span>
                             </div>
                           </div>
-                          <div className="flex items-end justify-between mt-2">
-                            <div className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-[#8E7AF6]">
-                              <MapPinIcon className="h-3 w-3" />
-                              {place.dist}
+
+                          <div className="flex items-center justify-between pt-1">
+                            <div className="flex flex-col gap-1.5">
+                              <div className="flex items-center gap-1.5 text-[11px] font-black uppercase text-[#8E7AF6]">
+                                <MapPinIcon className="h-3 w-3" /> {place.dist}
+                              </div>
+                              {rating > 0 && (
+                                <div className="flex gap-0.5">
+                                  {[1, 2, 3, 4, 5].map((s) => (
+                                    <StarIcon
+                                      key={s}
+                                      filled={s <= rating}
+                                      className={`h-3 w-3 ${s <= rating ? "text-yellow-400" : "text-gray-200"}`}
+                                    />
+                                  ))}
+                                </div>
+                              )}
                             </div>
-                            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-50 border border-black/5 text-[11px] font-bold text-black/60 active:scale-95 transition-all">
-                              <MapIcon className="h-3 w-3" />
-                              Google Maps
-                            </button>
+
+                            {/* Text Buttons instead of Icons */}
+                            <div className="flex items-center gap-3">
+                              <button
+                                onClick={() => openPlaceModal(place.id)}
+                                className={`px-4 py-2 rounded-full text-[12px] font-bold transition-all active:scale-90 ${hasNote || rating > 0 ? "bg-[#8E7AF6] text-white shadow-md shadow-[#8E7AF6]/20" : "bg-gray-100 text-black/50 border border-black/5"}`}
+                              >
+                                notes
+                              </button>
+                              <a
+                                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name + " " + trip.destination)}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-4 py-2 rounded-full bg-gray-100 text-black/50 text-[12px] font-bold active:scale-90 transition-all border border-black/5"
+                              >
+                                maps
+                              </a>
+                            </div>
                           </div>
                         </div>
-                      ))}
+                      );
+                    })}
                   </div>
                 </div>
               );
@@ -573,30 +581,27 @@ export default function TripDetailsPage() {
           </div>
         </section>
 
-        {/* --- Notes Action --- */}
+        {/* Global Actions */}
         <div className="pt-8 pb-4 space-y-3">
           <button
             onClick={() => {
               setNoteContent(trip.notes || "");
               setShowNotesModal(true);
             }}
-            className="w-full flex items-center justify-center gap-2 p-4 text-[#8E7AF6] font-bold bg-[#8E7AF6]/10 rounded-[20px] active:scale-95 transition-all"
+            className="w-full flex items-center justify-center gap-2 p-4 text-[#8E7AF6] font-bold bg-[#8E7AF6]/10 rounded-[22px] active:scale-95 transition-all"
           >
-            <DocumentTextIcon className="h-5 w-5" />
             {trip.notes ? "Edit Trip Notes" : "Add Trip Notes"}
           </button>
-
           <button
             onClick={() => setShowDeleteModal(true)}
-            className="w-full flex items-center justify-center gap-2 p-4 text-[#FF3B30] font-bold bg-[#FF3B30]/5 rounded-[20px] active:scale-95 transition-all"
+            className="w-full flex items-center justify-center gap-2 p-4 text-red-500 font-bold bg-red-50 rounded-[22px] active:scale-95 transition-all border border-red-100"
           >
-            <TrashIcon className="h-5 w-5" />
             Delete Trip
           </button>
         </div>
       </div>
 
-      {/* --- Notes Modal --- */}
+      {/* --- Modals remain with existing functionality --- */}
       <AnimatePresence>
         {showNotesModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center px-6">
@@ -611,13 +616,10 @@ export default function TripDetailsPage() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white w-full max-w-sm p-6 rounded-[32px] shadow-2xl relative z-10 space-y-4"
+              className="bg-white w-full max-w-[430px] p-6 rounded-[32px] shadow-2xl relative z-10 space-y-4"
             >
               <div className="flex justify-between items-center mb-2">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-[#8E7AF6]/10 text-[#8E7AF6] flex items-center justify-center">
-                    <DocumentTextIcon className="h-5 w-5" />
-                  </div>
                   <h3 className="text-xl font-bold text-black">Trip Notes</h3>
                 </div>
                 <button
@@ -627,28 +629,23 @@ export default function TripDetailsPage() {
                   <XIcon className="h-4 w-4" />
                 </button>
               </div>
-
               <textarea
                 value={noteContent}
                 onChange={(e) => setNoteContent(e.target.value)}
                 placeholder="Write down ideas, packing lists, or reminders..."
                 className="w-full h-40 p-4 bg-gray-50 rounded-[20px] text-[15px] font-medium text-black placeholder:text-black/30 outline-none border border-transparent focus:border-[#8E7AF6]/30 focus:bg-white transition-all resize-none"
               />
-
-              <div className="pt-2">
-                <button
-                  onClick={handleSaveNotes}
-                  className="w-full py-4 rounded-[20px] font-black text-white bg-[#8E7AF6] shadow-lg shadow-[#8E7AF6]/30 active:scale-95 transition-all"
-                >
-                  Save Notes
-                </button>
-              </div>
+              <button
+                onClick={handleSaveNotes}
+                className="w-full py-4 rounded-[20px] font-black text-white bg-[#8E7AF6] shadow-lg active:scale-95 transition-all"
+              >
+                Save Notes
+              </button>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
 
-      {/* --- Delete Confirmation Modal --- */}
       <AnimatePresence>
         {showDeleteModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center px-6">
@@ -663,10 +660,10 @@ export default function TripDetailsPage() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white w-full max-w-sm p-6 rounded-[32px] shadow-2xl relative z-10 text-center space-y-4"
+              className="bg-white w-full max-w-[430px] p-6 rounded-[32px] shadow-2xl relative z-10 text-center space-y-4"
             >
               <div className="mx-auto h-12 w-12 rounded-full bg-red-100 text-red-500 flex items-center justify-center mb-2">
-                <TrashIcon className="h-6 w-6" />
+                ⚠️
               </div>
               <div>
                 <h3 className="text-xl font-bold text-black">
@@ -679,7 +676,7 @@ export default function TripDetailsPage() {
               <div className="grid grid-cols-2 gap-3 pt-2">
                 <button
                   onClick={() => setShowDeleteModal(false)}
-                  className="w-full py-4 rounded-[20px] font-bold text-black bg-gray-100 active:scale-95 transition-all"
+                  className="w-full py-4 rounded-[20px] font-bold text-black bg-gray-100 active:scale-95"
                 >
                   Cancel
                 </button>
@@ -690,7 +687,7 @@ export default function TripDetailsPage() {
                       router.push("/trips");
                     }
                   }}
-                  className="w-full py-4 rounded-[20px] font-black text-white bg-[#FF3B30] active:scale-95 transition-all"
+                  className="w-full py-4 rounded-[20px] font-black text-white bg-red-500 active:scale-95"
                 >
                   Delete
                 </button>
@@ -699,82 +696,68 @@ export default function TripDetailsPage() {
           </div>
         )}
       </AnimatePresence>
+
+      <AnimatePresence>
+        {editingPlaceId && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center px-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              onClick={() => setEditingPlaceId(null)}
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white w-full max-w-[430px] p-6 rounded-[32px] shadow-2xl relative z-10 space-y-4"
+            >
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="text-xl font-bold text-black">Rate & Note</h3>
+                <button
+                  onClick={() => setEditingPlaceId(null)}
+                  className="h-8 w-8 rounded-full bg-black/5 flex items-center justify-center text-black/40"
+                >
+                  <XIcon className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="flex justify-center gap-2 py-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    onClick={() => setPlaceRatingValue(star)}
+                    className="focus:outline-none transition-transform active:scale-110"
+                  >
+                    <StarIcon
+                      filled={star <= placeRatingValue}
+                      className={`h-8 w-8 ${star <= placeRatingValue ? "text-yellow-400" : "text-gray-200"}`}
+                    />
+                  </button>
+                ))}
+              </div>
+              <textarea
+                value={placeNoteContent}
+                onChange={(e) => setPlaceNoteContent(e.target.value)}
+                placeholder="What did you think of this place?"
+                className="w-full h-32 p-4 bg-gray-50 rounded-[20px] text-[15px] font-medium text-black placeholder:text-black/30 outline-none border border-transparent focus:border-[#8E7AF6]/30 focus:bg-white transition-all resize-none"
+              />
+              <button
+                onClick={handleSavePlaceDetails}
+                className="w-full py-4 rounded-[20px] font-black text-white bg-[#8E7AF6] shadow-lg active:scale-95 transition-all"
+              >
+                Save Review
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+      <LiquidTabBar />
     </main>
   );
 }
 
-function UserIcon() {
-  return (
-    <svg
-      className="w-5 h-5"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      viewBox="0 0 24 24"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-      />
-    </svg>
-  );
-}
-
-function DocumentTextIcon(p: any) {
-  return (
-    <svg
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={2}
-      {...p}
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-      />
-    </svg>
-  );
-}
-
-function XIcon(p: any) {
-  return (
-    <svg
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={2.5}
-      {...p}
-    >
-      <path
-        d="M6 18L18 6M6 6l12 12"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function TrashIcon(p: any) {
-  return (
-    <svg
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={2}
-      {...p}
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-      />
-    </svg>
-  );
-}
-
+// --- Icons ---
 function ChevronLeftIcon(p: any) {
   return (
     <svg
@@ -801,21 +784,7 @@ function PlaneIcon(p: any) {
     </svg>
   );
 }
-function CheckIcon() {
-  return (
-    <svg
-      width="10"
-      height="10"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="white"
-      strokeWidth="4"
-    >
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  );
-}
-function MapIcon(p: any) {
+function BedIcon(p: any) {
   return (
     <svg
       fill="none"
@@ -824,7 +793,21 @@ function MapIcon(p: any) {
       strokeWidth={2}
       {...p}
     >
-      <path d="M9 20l-5 4V4l5 4 6-4 5 4v20l-5-4-6 4z" />
+      <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+    </svg>
+  );
+}
+function CheckIcon() {
+  return (
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="white"
+      strokeWidth="4"
+    >
+      <polyline points="20 6 9 17 4 12" />
     </svg>
   );
 }
@@ -839,6 +822,42 @@ function MapPinIcon(p: any) {
     >
       <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
       <circle cx="12" cy="11" r="3" />
+    </svg>
+  );
+}
+function XIcon(p: any) {
+  return (
+    <svg
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2.5}
+      {...p}
+    >
+      <path
+        d="M6 18L18 6M6 6l12 12"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+function StarIcon({
+  filled,
+  className,
+}: {
+  filled?: boolean;
+  className?: string;
+}) {
+  return (
+    <svg
+      fill={filled ? "currentColor" : "none"}
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+      className={className}
+    >
+      <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
     </svg>
   );
 }
