@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import LiquidTabBar from "@/components/LiquidTabBar";
+import { saveTrip, type Trip } from "@/lib/tripsStore";
 
 const easeOut = [0.22, 1, 0.36, 1] as const;
 
@@ -61,6 +62,42 @@ function TripResultContent() {
   const isOverBudget = totalCost > budget;
   const diff = Math.abs(budget - totalCost);
   const progressPercent = Math.min((totalCost / budget) * 100, 100);
+
+  const handleSaveTrip = () => {
+    const newTrip: Trip = {
+      id: crypto.randomUUID(),
+      createdAt: new Date().toISOString(),
+      destination,
+      departure: searchParams.get("departure") || "Amsterdam", 
+      days,
+      budget,
+      people: Number(searchParams.get("people")) || 2,
+      isCouple: searchParams.get("isCouple") === "true",
+      vibes: searchParams.get("vibes") ? searchParams.get("vibes")!.split(",") : [],
+      totalCost,
+      savings: isOverBudget ? 0 : diff,
+      isOverBudget,
+      progressPercent,
+      selectedFlight: {
+        id: flight.id,
+        airline: flight.airline,
+        time: flight.time,
+        price: flight.price,
+        stops: flight.stops,
+      },
+      selectedStay: {
+        id: stay.id,
+        name: stay.name,
+        distance: stay.distance,
+        price: stay.price,
+        image: stay.image,
+      },
+      selectedPlaces,
+    };
+
+    saveTrip(newTrip);
+    router.push(`/trips?newTripId=${newTrip.id}`);
+  };
 
   if (loading) {
     return (
@@ -347,7 +384,9 @@ function TripResultContent() {
       {/* Primary Action Footer */}
       <div className="w-full max-w-[430px] px-6 mt-10 mb-[100px] pointer-events-none">
         <div className="pointer-events-auto">
-          <button className="w-full bg-[#1D1D1F] text-white font-black h-16 rounded-[24px] shadow-2xl flex items-center justify-center gap-2 active:scale-95 transition-all">
+          <button 
+            onClick={handleSaveTrip}
+            className="w-full bg-[#1D1D1F] text-white font-black h-16 rounded-[24px] shadow-2xl flex items-center justify-center gap-2 active:scale-95 transition-all">
             Save Adventure
           </button>
         </div>
