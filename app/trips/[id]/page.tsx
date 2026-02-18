@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { motion } from "framer-motion";
-import { getTripById, type Trip } from "@/lib/tripsStore";
+import { motion, AnimatePresence } from "framer-motion";
+import { getTripById, deleteTrip, type Trip } from "@/lib/tripsStore";
 
 // Re-using constants from result page for lookup purposes
 // (In a real app, these would come from a database or API)
@@ -285,6 +285,7 @@ export default function TripDetailsPage() {
   const params = useParams();
   const [trip, setTrip] = useState<Trip | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     if (params.id) {
@@ -359,22 +360,6 @@ export default function TripDetailsPage() {
                 >
                   €{trip.budget} Budget
                 </div>
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/10">
-                  <span className="text-[12px] font-bold text-white/90">
-                    {trip.people} {trip.people === 1 ? "Traveler" : "Travelers"}
-                  </span>
-                </div>
-                {/* Vibe Pills */}
-                <div className="flex flex-wrap gap-1 justify-end max-w-[150px] mt-1">
-                  {trip.vibes?.slice(0, 2).map((v) => (
-                    <div
-                      key={v}
-                      className="px-2 py-1 rounded-lg bg-white/5 backdrop-blur-sm border border-white/5 text-[10px] font-bold text-white/70"
-                    >
-                      {v}
-                    </div>
-                  ))}
-                </div>
               </div>
             </div>
 
@@ -398,6 +383,39 @@ export default function TripDetailsPage() {
             </div>
           </div>
         </motion.div>
+
+        {/* --- Trip Overview (Travelers & Vibes) --- */}
+        <section className="grid grid-cols-2 gap-4">
+          <div className="p-5 rounded-[24px] bg-white border border-black/5 shadow-sm space-y-2">
+            <h4 className="text-[11px] font-black uppercase tracking-widest text-black/30">
+              Travelers
+            </h4>
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-full bg-[#8E7AF6]/10 flex items-center justify-center text-[#8E7AF6]">
+                <UserIcon />
+              </div>
+              <span className="text-[15px] font-bold text-black">
+                {trip.people} {trip.people === 1 ? "Person" : "People"}
+              </span>
+            </div>
+          </div>
+
+          <div className="p-5 rounded-[24px] bg-white border border-black/5 shadow-sm space-y-2">
+            <h4 className="text-[11px] font-black uppercase tracking-widest text-black/30">
+              Vibe
+            </h4>
+            <div className="flex flex-wrap gap-1">
+              {trip.vibes?.slice(0, 2).map((v) => (
+                <span
+                  key={v}
+                  className="px-2 py-1 rounded-md bg-[#8E7AF6]/10 text-[#8E7AF6] text-[10px] font-bold"
+                >
+                  {v}
+                </span>
+              ))}
+            </div>
+          </div>
+        </section>
 
         {/* Selected Flight & Stay */}
         <section className="space-y-5">
@@ -538,8 +556,105 @@ export default function TripDetailsPage() {
             })}
           </div>
         </section>
+
+        {/* --- Delete Trip Action --- */}
+        <div className="pt-8 pb-4">
+          <button
+            onClick={() => setShowDeleteModal(true)}
+            className="w-full flex items-center justify-center gap-2 p-4 text-[#FF3B30] font-bold bg-[#FF3B30]/5 rounded-[20px] active:scale-95 transition-all"
+          >
+            <TrashIcon className="h-5 w-5" />
+            Delete Trip
+          </button>
+        </div>
       </div>
+
+      {/* --- Delete Confirmation Modal --- */}
+      <AnimatePresence>
+        {showDeleteModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center px-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              onClick={() => setShowDeleteModal(false)}
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white w-full max-w-sm p-6 rounded-[32px] shadow-2xl relative z-10 text-center space-y-4"
+            >
+              <div className="mx-auto h-12 w-12 rounded-full bg-red-100 text-red-500 flex items-center justify-center mb-2">
+                <TrashIcon className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-black">Delete this trip?</h3>
+                <p className="text-[15px] font-medium text-black/40 mt-1">
+                  This action cannot be undone.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="w-full py-4 rounded-[20px] font-bold text-black bg-gray-100 active:scale-95 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    if (trip) {
+                      deleteTrip(trip.id);
+                      router.push("/trips");
+                    }
+                  }}
+                  className="w-full py-4 rounded-[20px] font-black text-white bg-[#FF3B30] active:scale-95 transition-all"
+                >
+                  Delete
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </main>
+  );
+}
+
+function UserIcon() {
+  return (
+    <svg
+      className="w-5 h-5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+      />
+    </svg>
+  );
+}
+
+function TrashIcon(p: any) {
+  return (
+    <svg
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+      {...p}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+      />
+    </svg>
   );
 }
 

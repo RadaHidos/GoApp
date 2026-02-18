@@ -50,6 +50,14 @@ export const saveTrip = (trip: Trip): Trip[] => {
   return newTrips;
 };
 
+export const deleteTrip = (id: string): Trip[] => {
+  if (typeof window === "undefined") return [];
+  const trips = getTrips();
+  const newTrips = trips.filter((t) => t.id !== id);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(newTrips));
+  return newTrips;
+};
+
 export const clearTrips = () => {
   if (typeof window === "undefined") return;
   localStorage.removeItem(STORAGE_KEY);
