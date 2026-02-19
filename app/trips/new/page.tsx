@@ -23,6 +23,7 @@ const LOCATIONS = [
   "Rome, IT",
   "Singapore, SG",
   "Tokyo, JP",
+  "Tenerife, ES",
 ];
 
 export default function NewTripPage() {
